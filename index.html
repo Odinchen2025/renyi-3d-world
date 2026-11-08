@@ -819,9 +819,11 @@ wing(25,41,-331,BZ2,3.6,TOPY-3.6,{px:'f',nx:'c',pz:'f',nz:'f'});wing(25,41,-331,
 wing(-29,25,BZ1,BZ2,7.0,TOPY-7.0,{});wing(-29,-15,BZ1,BZ2,3.6,3.4,{});wing(15,25,BZ1,BZ2,3.6,3.4,{});boxR(-15,15,BZ2-0.3,BZ2,3.6,3.4,SCH_TILE,{});boxR(-15,15,BZ1,BZ1+0.3,3.6,3.4,SCH_TILE,{});
 for(const[za,zb]of[[-269,-257]]){wing(-29,25,za,zb,3.6,TOPY-3.6,{});wing(-29,-5,za,zb,0.15,3.45,{});wing(5,25,za,zb,0.15,3.45,{});}
 // 圓形穿堂的二樓進出空間：保留兩側量體，中間留出可走的挑高樓梯廳。
-wing(-29,-7.5,-331,-307,3.6,TOPY-3.6,{});
+// 左側二樓改成有空間的走廊與總務處，保留三樓以上和原本外立面。
+wing(-29,-7.5,-331,-307,7.0,TOPY-7.0,{});
 wing(7.5,25,-331,-307,3.6,TOPY-3.6,{});
-for(const [xa,xb,za,zb] of [[-7.5,-3.7,-323.3,-307],[3.7,7.5,-323.3,-307]])wing(xa,xb,za,zb,3.6,TOPY-3.6,{});
+wing(-7.5,-3.7,-323.3,-307,7.0,TOPY-7.0,{});
+wing(3.7,7.5,-323.3,-307,3.6,TOPY-3.6,{});
 for(const [xa,xb,za,zb] of [[-7.5,-3.7,-331,-323.3],[3.7,7.5,-331,-323.3],[-3.7,3.7,-331,-307]])wing(xa,xb,za,zb,6.8,TOPY-6.8,{});
 wing(-29,-6.6,-331,-307,0.15,3.45,{});wing(-6.6,-4,-323.6,-307,0.15,3.45,{});wing(4,6.6,-323.6,-319,0.15,3.45,{});wing(4,5,-319,-307,0.15,3.45,{});wing(6.6,25,-331,-319,0.15,3.45,{});
 for(const[x1,x2,z1,z2]of[[-45,-29,-331,-257],[-45,-29,-213,BZ2],[25,41,-331,BZ2],[-29,25,BZ1,BZ2],[-29,25,-269,-257],[-29,25,-331,-307]]){boxR(x1,x2,z1,z1+0.2,TOPY,0.9,M('#d4cab0'),{cast:false});boxR(x1,x2,z2-0.2,z2,TOPY,0.9,M('#d4cab0'),{cast:false});}
@@ -925,13 +927,20 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
   boxR(x1,x2,-325.65,-323.30,UP-0.18,0.18,STP2,{cast:false});
   walkRects.unshift([x1,-325.65,x2,-323.30,UP]);
  }
- boxR(-6.65,6.65,-323.72,-323.05,UP-0.18,0.18,STP2,{cast:false});
- walkRects.unshift([-6.65,-323.72,6.65,-323.05,UP]);
+ // 移除照片中圈出的橫跨兩座樓梯上方的長橫板，保留左右分開的短銜接板。
+ for(const [x1,x2] of [[-6.65,-3.0],[3.0,6.65]]){
+  boxR(x1,x2,-323.60,-322.60,UP-0.18,0.18,STP2,{cast:false});
+  walkRects.unshift([x1,-323.60,x2,-322.60,UP]);
+ }
  boxR(-3.25,3.25,-323.06,-307.5,UP-0.18,0.18,STP2,{cast:false});
  walkRects.unshift([-3.25,-323.06,3.25,-307.5,UP]);
+ // 左邊扶手在通往總務處的轉角打開，不再阻擋人物通行。
  for(const x of [-3.28,3.28]){
-  limb(x,UP+0.99,-323.05,x,UP+0.99,-308,0.045,0.045,HAND);
-  for(let z=-323.05;z<-307.9;z+=2.4)limb(x,UP+0.05,z,x,UP+0.99,z,0.035,0.035,HAND);
+  const spans=x<0?[[-323.05,-313.8],[-308.75,-308.0]]:[[-323.05,-308.0]];
+  for(const [za,zb] of spans){
+   limb(x,UP+0.99,za,x,UP+0.99,zb,0.045,0.045,HAND);
+   for(let z=za;z<zb-0.1;z+=2.2)limb(x,UP+0.05,z,x,UP+0.99,z,0.035,0.035,HAND);
+  }
  }
  // 米白方磚背景與五華學生作品展示牆；採程序化圖案，非真實學生肖像。
  {const tile=tex(256,256,(g,W,H)=>{g.fillStyle='#e8e4db';g.fillRect(0,0,W,H);
@@ -957,8 +966,39 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
   const room=(x1,x2,label,color)=>{boxR(x1,x2,-307.05,-306.85,WY,2.2,WALL,{col:1,block:1});boxR(x1+0.2,x1+1.2,-307.08,-306.82,WY,1.9,FRAME,{col:1});boxR(x1+0.28,x1+1.12,-307.1,-306.8,WY+0.6,1.0,M('#6a4b2c'),{cast:false});
    const wx1=x1+1.5,wx2=x2-0.22;boxR(wx1,wx2,-307.04,-306.9,WY+0.8,1.1,GL,{cast:false});for(let x=wx1;x<=wx2+0.01;x+=(wx2-wx1)/3)boxR(x-0.03,x+0.03,-307.04,-306.9,WY+0.75,1.2,FRAME,{cast:false});
    vplane((x1+x2)/2,WY+2.0,-306.83,Math.min(4.2,x2-x1-0.3),0.34,signMat(label,color,'#ffffff',false,0.26),0);addCol(x1,-307.1,x2,-306.8);};
-  room(-17.5,-9.2,'總務處','#7a5a3c');room(-8.7,-1.2,'二年一班','#1f4f8a');room(1.2,8.7,'二年二班','#2f8f5b');
+  // 真正的總務處在左邊的可走室內，不再把它做成前方的假門。
+  room(-8.7,-1.2,'二年一班','#1f4f8a');room(1.2,8.7,'二年二班','#2f8f5b');
   for(const[x,z]of[[-14.8,-312.5],[-11.4,-312.5],[-5.8,-312.5],[-3.4,-312.5],[3.4,-312.5],[5.8,-312.5]]){boxR(x-0.38,x+0.38,z-0.22,z+0.22,WY,0.65,M('#d9c7a6',{emissive:0x232323}),{cast:false});boxR(x-0.04,x+0.04,z-0.2,z+0.1,WY+0.62,0.45,M('#8d6e63',{emissive:0x232323}),{cast:false});}}
+ // 修通 Y 字樓梯上方到總務處的二樓左側橫向走廊。
+ const OA_FLOOR=M('#b5b7b4'),OA_WALL=M('#e6e3dd'),OA_WOOD=M('#c3a785'),OA_METAL=M('#71817f'),OA_DARK=M('#303b43');
+ boxR(-26.0,-3.0,-313.1,-309.0,UP-0.18,0.18,OA_FLOOR,{cast:false});
+ walkRects.unshift([-26.0,-313.1,-3.0,-309.0,UP]);
+ // 真正的總務處室內地板，開口在 x=-20.2～-17.8。
+ boxR(-25.9,-12.9,-318.9,-312.9,UP-0.18,0.18,OA_FLOOR,{cast:false});
+ walkRects.unshift([-25.9,-318.9,-12.9,-312.9,UP]);
+ // 二樓牆只做可視建模，不加 2D 碰撞，避免同位置的一樓被誤擋。
+ for(const [x1,x2,z1,z2] of [[-26,-25.83,-319,-313],[-13.07,-12.9,-319,-313],[-26,-12.9,-319,-318.82],[-26,-20.2,-313.03,-312.89],[-17.8,-12.9,-313.03,-312.89]]){
+  boxR(x1,x2,z1,z2,UP,2.65,OA_WALL,{cast:false});
+ }
+ boxR(-20.2,-17.8,-313.03,-312.89,UP+2.23,0.42,OA_WALL,{cast:false});
+ for(const x of [-20.2,-17.8])boxR(x-0.05,x+0.05,-313.08,-312.86,UP,2.22,OA_METAL,{cast:false});
+ vplane(-19.0,UP+2.46,-312.85,2.2,0.36,signMat('總務處','#45715d','#ffffff',false,0.25),0);
+ // 開放走廊保留面向樓梯的視野，照明和材料與其他樓層一致。
+ boxR(-26,-25.82,-313.0,-309.0,UP,2.7,OA_WALL,{cast:false});
+ for(const x of [-23,-17,-11])boxR(x-0.45,x+0.45,-311.4,-310.8,UP+2.65,0.05,LAMP_LED,{cast:false});
+ // 四組實體辦公桌、電腦螢幕與座椅。
+ const addOfficeDesk=(x,z)=>{
+  boxR(x-0.72,x+0.72,z-0.38,z+0.38,UP+0.68,0.08,OA_WOOD,{cast:false});
+  for(const sx of [-0.61,0.61])for(const sz of [-0.27,0.27])
+    boxR(x+sx-0.035,x+sx+0.035,z+sz-0.035,z+sz+0.035,UP,0.68,OA_METAL,{cast:false});
+  boxR(x-0.26,x+0.26,z+0.14,z+0.2,UP+0.85,0.4,OA_DARK,{cast:false});
+  boxR(x-0.1,x+0.1,z+0.1,z+0.18,UP+0.74,0.12,OA_METAL,{cast:false});
+  boxR(x-0.33,x+0.33,z-0.94,z-0.46,UP+0.39,0.08,OA_DARK,{cast:false});
+  boxR(x-0.33,x+0.33,z-1.01,z-0.93,UP+0.45,0.51,OA_DARK,{cast:false});
+ };
+ for(const x of [-23.0,-20.5,-17.5,-15.0])addOfficeDesk(x,-316.10);
+ for(const z of [-317.6,-315.7])boxR(-25.6,-25.1,z-0.54,z+0.54,UP,1.68,OA_METAL,{cast:false});
+ vplane(-19.0,UP+2.12,-318.79,4.1,0.37,signMat('校園設備｜修繕｜物品採購','#f1ead3','#49564d',false,0.23),0);
  // 往操場的樓梯（北邊）
  {const STP=M('#cfc7b1'),NOSE=M('#e2a24c'),zE=DZ-RR;for(let i=0;i<4;i++){const h=0.39+0.24*i,za=zE-0.6*(4-i),zb=za+0.6;boxR(-3.6,3.6,za,zb,0,h,STP,{});boxR(-3.6,3.6,za-0.03,za+0.05,h-0.03,0.04,NOSE,{cast:false});walkRects.unshift([-3.6,za,3.6,zb,h]);}
   boxR(-3.6,3.6,zE,zE+0.6,0,HF,STP,{});walkRects.unshift([-3.6,zE,3.6,zE+0.6,HF]);
@@ -2032,6 +2072,12 @@ const idlers=[];
 function idle(x,z,ry,opt){const c=makeChibi(opt);c.g.position.set(x,groundY(x,z),z);c.g.rotation.y=ry;scene.add(c.g);idlers.push(c);return c;}
 idle(10,-160,0,{hair:'#d9d9d6',style:'bun'});idle(24.4,-149,Math.PI/2,{hair:'#8a8a88'});idle(24.4,-156,Math.PI/2,{});idle(8.2,-190.5,Math.PI,{shirt:'#1d3557',pants:'#1d3557',style:'cap',cap:'#1d3557'});
 {const gp=window.GUARD_POS;idle(gp[0],gp[1],Math.atan2(JXN.x,JXN.z)+Math.PI,{shirt:'#1d3557',pants:'#1d3557',style:'cap',cap:'#1d3557',lower:'long'});}
+ // 二樓總務處有三名老師辦公；維持固定姿勢，避免新增昂貴的逐幀動畫。
+ {const a=idle(-20.5,-316.98,0,{shirt:'#d5c6ab',pants:'#384c5b',hair:'#302419',style:'short',shadow:false});
+  const b=idle(-17.5,-316.98,0,{shirt:'#c9dbe3',pants:'#344455',hair:'#2e241e',style:'bun',shadow:false});
+  for(const c of [a,b]){poseSit(c,false);c.arms[0].rotation.x=-0.6;c.arms[1].rotation.x=-0.65;c.g.position.y=5.18;}
+  idle(-14.4,-314.8,Math.PI,{shirt:'#e1d7c4',pants:'#454b5e',hair:'#6b4a32',style:'pony',shadow:false});}
+
 
 // =====================================================================
 //  狗狗（貴賓、柴犬、米克斯、柯基、黃金獵犬、雪納瑞…），每一隻都有主人用牽繩牽著
@@ -2169,6 +2215,7 @@ addInteract(-14.2,-205,2.4,'看希望之牆',()=>showNote('希望之牆',['全�
 addInteract(-13.9,-202,1.4,'看小火車展示櫃',()=>toast('樂高小火車的車廂裡，放著小朋友的作品和獎狀'));
 addInteract(0,-207,2.4,'看日出馬賽克牆',()=>showNote('穿堂的舞台',['日出的馬賽克牆是全校小朋友一片一片貼的','上面的電子看板會打出歡迎的字','耶誕點燈、合唱、直笛表演都在這裡']));
 addInteract(0,-330,2.2,'看圓形穿堂',()=>showNote('圓形穿堂',['依校園影片照片擴大的半圓形穿堂','中央 Y 字形樓梯可以走到二樓','一樓有磨石子地面、方格天花和開放活動空間','二樓新增教室及左側總務處立面']));
+addInteract(-19.0,-315.0,2.25,'拜訪總務處',()=>choose('總務處',[{label:'向老師打招呼',fn:()=>say('總務處老師：你好！需要什麼協助嗎？',4)},{label:'詢問設備維修',fn:()=>say('老師：教室設備壞掉，可以來總務處登記報修喔。',4)},{label:'查看公告',fn:()=>showNote('總務處公告',['教室設備維護','校園環境修繕','校務行政及物品採購'])}]));
 addInteract(14.2,-205,2.4,'看馬賽克牆',()=>toast('馬賽克牆上兩個穿制服的小朋友，舉著「五華國小 歡迎你」'));
 for(const cr of classrooms)addInteract(cr.x1+1.4,CZ-0.9,1.7,`看 ${cr.r.name} 上課`,()=>toast(`${cr.r.name}正在上${cr.r.subj}課，黑板寫著「${cr.r.board[1]}」`));
 boxR(-28.2,-27.4,CZ-0.55,CZ,0.15,1.05,M('#c8ccd0'),{col:1});boxR(-28.2,-27.4,CZ-0.5,CZ-0.1,1.2,0.35,M('#8fa4b4'),{});
