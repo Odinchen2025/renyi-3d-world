@@ -378,9 +378,9 @@ TOWER_V.forEach(v=>{const[t,te]=towerTex(v.frame,v.glass);const tm=litMat(t,te,3
 //  世界建構工具
 // =====================================================================
 const S=new THREE.Group();scene.add(S);
-const colliders=[],walkRects=[],mapRects=[],LIGHTS=[];
+const colliders=[],walkRects=[],mapRects=[],LIGHTS=[],rotundaStairOBB=[];
 function addCol(x1,z1,x2,z2){colliders.push([Math.min(x1,x2),Math.min(z1,z2),Math.max(x1,x2),Math.max(z1,z2)]);}
-function groundY(x,z,currentY){for(const r of walkRects)if(x>=r[0]&&x<=r[2]&&z>=r[1]&&z<=r[3]&&(currentY===undefined||r[4]<=currentY+0.3))return r[4];for(const o of walkOBB){const dx=x-o[0],dz=z-o[1];if(Math.abs(dx*o[2]+dz*o[3])<=o[4]&&Math.abs(dx*o[3]-dz*o[2])<=o[5])return o[6];}return 0;}
+function groundY(x,z,currentY){for(const o of rotundaStairOBB){const dx=x-o[0],dz=z-o[1];if(Math.abs(dx*o[2]+dz*o[3])<=o[4]&&Math.abs(dx*o[3]-dz*o[2])<=o[5]&&(currentY===undefined||o[6]<=currentY+0.29))return o[6];}for(const r of walkRects)if(x>=r[0]&&x<=r[2]&&z>=r[1]&&z<=r[3]&&(currentY===undefined||r[4]<=currentY+0.3))return r[4];for(const o of walkOBB){const dx=x-o[0],dz=z-o[1];if(Math.abs(dx*o[2]+dz*o[3])<=o[4]&&Math.abs(dx*o[3]-dz*o[2])<=o[5])return o[6];}return 0;}
 function scaleBoxUV(geo,w,h,d,tu,tv){const uv=geo.attributes.uv;const dims=[[d,h],[d,h],[w,d],[w,d],[w,h],[w,h]];
  for(let f=0;f<6;f++){const[a,b]=dims[f];const sv=(f===2||f===3)?tu:tv;for(let i=0;i<4;i++){const k=f*4+i;uv.setXY(k,uv.getX(k)*a/tu,uv.getY(k)*b/sv);}}uv.needsUpdate=true;}
 function addBox(cx,y0,cz,w,h,d,mat,o={}){const geo=new THREE.BoxGeometry(w,h,d);if(o.tu)scaleBoxUV(geo,w,h,d,o.tu,o.tv||o.tu);
@@ -854,7 +854,7 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
  corridor(FZ(-307,1),-29,25,{in1:D,in2:D,gSkip:[[-4,4],[5,25]]});
  corridor(FX(-29,1),-307+D,-269-D,{e1:false,e2:false});
  corridor(FX(25,-1),-307+D,-269-D,{e1:false,e2:false});}
-// ---- 六藝樓 圓形穿堂 v1：放大半圓入口、格狀天花、雙側可走的樓梯與二樓連通走道 ----
+// ---- 六藝樓 圓形穿堂 v2：依手繪圖改為中央梯分岔左右的 Y 字形樓梯 ----
 {const __ROT0=S.children.length,__RW0=new Set(walkRects);const LF=1.2,CX=0,CZ0=-330,RR=8.4,HF=1.35,CEIL=8.2,TAU=Math.PI*2;
  window.ROTUNDA={x:CX,z:CZ0,r:RR};
  const PKT=tex(128,256,(g,W,H)=>{g.fillStyle='#e7b4ad';g.fillRect(0,0,W,H);g.fillStyle='#d49c95';for(let i=0;i<=W;i+=10)g.fillRect(i,0,1.2,H);for(let y=0;y<=H;y+=10)g.fillRect(0,y,W,1.2);},true);PKT.repeat.set(3,3);
@@ -881,30 +881,57 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
  // 格狀天花板：參照影片截圖的淺色方格，使用細長共享材質方條，避免多張高成本貼圖。
  {const GRID=M('#e6e4dd');for(let x=-6;x<=6.01;x+=1.5)boxR(x-0.035,x+0.035,-336.2,-325.6,CEIL-0.24,0.05,GRID,{cast:false});
   for(let z=-336.2;z<=-325.5;z+=1.5)boxR(-6,6,z-0.035,z+0.035,CEIL-0.24,0.05,GRID,{cast:false});}
- // 二樓高度與原校舍抬升後的二樓地坪齊平 (FL_Y[1]+LIFT=4.8m)。
- const UP=FL_Y[1]+LF,STEPS=16,START=-337.0,END=-324.2,RISE=(UP-HF)/STEPS,STEP_RUN=(END-START)/STEPS;
- // 根據六藝樓穿堂實景：灰白階梯、深灰實心斜牆、金屬扶手
- const STP2=M('#c5c7c5'),EDGE2=M('#767b7a'),HAND=M('#697276');
- const STAIR_SIDE=M('#55595b');
- for(const [x1,x2] of [[-6.0,-3.7],[3.7,6.0]]){
-  for(let i=0;i<STEPS;i++){
-   const za=START+i*STEP_RUN,zb=za+STEP_RUN,h=HF+(i+1)*RISE;
-   boxR(x1,x2,za,zb,HF,h-HF,STP2,{cast:false});
-   boxR(x1,x2,zb-0.05,zb,h-0.025,0.025,EDGE2,{cast:false});
-   walkRects.unshift([x1,za,x2,zb,h]);
+ // 六藝樓 Y 字形樓梯：依手繪圖由中央樓梯登上分岔平台，再往左右上二樓。
+ // 樓梯建在原圓形穿堂內；寬度、長度為照片推估值，保留既有半圓屋頂與一樓動線。
+ const UP=FL_Y[1]+LF,MID=2.60;
+ const STP2=M('#c5c7c5'),EDGE2=M('#939a98'),HAND=M('#697276');
+ const WALL2=new THREE.MeshLambertMaterial({color:0x55595b,side:THREE.DoubleSide});
+ const stairFlight=(a,b,w,y0,y1,n)=>{
+  const dx=b[0]-a[0],dz=b[1]-a[1],d=Math.hypot(dx,dz),ux=dx/d,uz=dz/d;
+  const ry=Math.atan2(ux,uz),run=d/n;
+  for(let i=0;i<n;i++){
+   const t=(i+0.5)/n,x=a[0]+dx*t,z=a[1]+dz*t,h=y0+(i+1)*(y1-y0)/n;
+   addBox(x,HF,z,w,h-HF,run+0.02,STP2,{ry,cast:false});
+   // 每階灰色踏鼻線，維持低材質數量。
+   addBox(x+ux*(run/2-0.035),h-0.025,z+uz*(run/2-0.035),w,0.025,0.07,EDGE2,{ry,cast:false});
+   rotundaStairOBB.unshift([x,z,ux,uz,run/2+0.035,w/2,h]);
   }
-  // 兩側沿坡扶手，高度跟隨踏階，刻意不加地面碰撞，避免 iPad 角色卡在扶手。
-  for(const x of [x1+0.08,x2-0.08]){
-   limb(x,HF+0.96,START,x,UP+0.96,END,0.055,0.055,HAND);
-   for(let i=0;i<=STEPS;i+=4){const z=START+i*STEP_RUN,h=HF+i*RISE;limb(x,h+0.08,z,x,h+0.96,z,0.035,0.035,HAND);}
+  const px=-uz,pz=ux;
+  for(const side of [-1,1]){
+   const ox=px*side*w*0.53,oz=pz*side*w*0.53;
+   limb(a[0]+ox,y0+0.92,a[1]+oz,b[0]+ox,y1+0.92,b[1]+oz,0.055,0.055,HAND);
+   for(let j=0;j<=n;j+=Math.max(2,Math.round(n/4))){
+    const t=j/n,x=a[0]+dx*t+ox,z=a[1]+dz*t+oz,y=y0+(y1-y0)*t;
+    limb(x,y+0.08,z,x,y+0.92,z,0.035,0.035,HAND);
+   }
   }
- }
- // 左右樓梯內側加上深灰色實心斜牆（只作裝飾，不額外阻擋行走）。
- for(const xx of[-3.68,3.68]){
-  const g=new THREE.BufferGeometry(),v=new Float32Array([xx,HF,START,xx,UP,END,xx,HF,END]);
+  // 外側實心斜牆（僅視覺，不擋住角色行走）。
+  const side=dx===0?-1:(dx>0?-1:1),ox=px*side*w*0.55,oz=pz*side*w*0.55;
+  const g=new THREE.BufferGeometry(),v=new Float32Array([
+   a[0]+ox,HF,a[1]+oz,b[0]+ox,y1+0.40,b[1]+oz,b[0]+ox,HF,b[1]+oz
+  ]);
   g.setAttribute('position',new THREE.BufferAttribute(v,3));g.setIndex([0,1,2]);g.computeVertexNormals();
-  const w=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:0x55595b,side:THREE.DoubleSide}));
-  w.castShadow=false;S.add(w);
+  const sideWall=new THREE.Mesh(g,WALL2);sideWall.castShadow=false;S.add(sideWall);
+ };
+ // 1F 中央寬梯（七階）→ 中間平台 → 左右兩條斜向上樓梯（各十一階）。
+ stairFlight([0,-336.65],[0,-332.75],2.75,HF,MID,7);
+ boxR(-2.45,2.45,-333.05,-331.55,MID-0.18,0.18,STP2,{cast:false});
+ walkRects.unshift([-2.45,-333.05,2.45,-331.55,MID]);
+ stairFlight([-1.30,-331.85],[-5.30,-325.40],2.04,MID,UP,11);
+ stairFlight([1.30,-331.85],[5.30,-325.40],2.04,MID,UP,11);
+ // 分別抵達左右二樓平台；後側相接二樓通道，保留實際行走能力。
+ for(const side of [-1,1]){
+  const x1=side<0?-6.65:3.75,x2=side<0?-3.75:6.65;
+  boxR(x1,x2,-325.65,-323.30,UP-0.18,0.18,STP2,{cast:false});
+  walkRects.unshift([x1,-325.65,x2,-323.30,UP]);
+ }
+ boxR(-6.65,6.65,-323.72,-323.05,UP-0.18,0.18,STP2,{cast:false});
+ walkRects.unshift([-6.65,-323.72,6.65,-323.05,UP]);
+ boxR(-3.25,3.25,-323.06,-307.5,UP-0.18,0.18,STP2,{cast:false});
+ walkRects.unshift([-3.25,-323.06,3.25,-307.5,UP]);
+ for(const x of [-3.28,3.28]){
+  limb(x,UP+0.99,-323.05,x,UP+0.99,-308,0.045,0.045,HAND);
+  for(let z=-323.05;z<-307.9;z+=2.4)limb(x,UP+0.05,z,x,UP+0.99,z,0.035,0.035,HAND);
  }
  // 米白方磚背景與五華學生作品展示牆；採程序化圖案，非真實學生肖像。
  {const tile=tex(256,256,(g,W,H)=>{g.fillStyle='#e8e4db';g.fillRect(0,0,W,H);
@@ -924,25 +951,6 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
     g.fillStyle='#e9e7e1';g.fillRect(x+6,y+78,40,3);
    }},false);
   vplane(-5.77,UP+0.65,-323.77,4.55,1.7,new THREE.MeshLambertMaterial({map:p}),0);
- }
- // 兩邊樓梯共用二樓平台，再沿中央走道連到六藝樓的二樓內側.
- boxR(-6.1,6.1,END,-323.05,UP-0.18,0.18,STP2,{cast:false});
- walkRects.unshift([-6.1,END,6.1,-323.05,UP]);
- boxR(-3.25,3.25,-323.06,-307.5,UP-0.18,0.18,STP2,{cast:false});
- walkRects.unshift([-3.25,-323.06,3.25,-307.5,UP]);
- for(const x of [-3.28,3.28]){
-  limb(x,UP+0.99,-323.05,x,UP+0.99,-308,0.045,0.045,HAND);
-  for(let z=-323.05;z<-307.9;z+=2.4)limb(x,UP+0.05,z,x,UP+0.99,z,0.035,0.035,HAND);
- }
- // 面操場的二樓半圓形玻璃欄杆，保留一樓的挑高開放感。
- const GL2=new THREE.MeshLambertMaterial({color:0xb8d5d1,transparent:true,opacity:0.31,depthWrite:false,side:THREE.DoubleSide});
- for(let i=0;i<24;i++){
-  const a1=Math.PI*i/24,a2=Math.PI*(i+1)/24,rad=RR-0.19;
-  const x1=CX+Math.cos(a1)*rad,z1=DZ-Math.sin(a1)*rad,x2=CX+Math.cos(a2)*rad,z2=DZ-Math.sin(a2)*rad;
-  const w=Math.hypot(x2-x1,z2-z1),pane=new THREE.Mesh(new THREE.PlaneGeometry(w,0.85),GL2);
-  pane.position.set((x1+x2)/2,UP+0.58,(z1+z2)/2);pane.rotation.y=-Math.atan2(z2-z1,x2-x1);pane.castShadow=false;S.add(pane);
-  limb(x1,UP+1.05,z1,x2,UP+1.05,z2,0.042,0.042,HAND);
-  if(i%3===0)limb(x1,UP+0.08,z1,x1,UP+1.1,z1,0.043,0.043,HAND);
  }
  // 往操場的樓梯（北邊）
  {const STP=M('#cfc7b1'),NOSE=M('#e2a24c'),zE=DZ-RR;for(let i=0;i<4;i++){const h=0.39+0.24*i,za=zE-0.6*(4-i),zb=za+0.6;boxR(-3.6,3.6,za,zb,0,h,STP,{});boxR(-3.6,3.6,za-0.03,za+0.05,h-0.03,0.04,NOSE,{cast:false});walkRects.unshift([-3.6,za,3.6,zb,h]);}
