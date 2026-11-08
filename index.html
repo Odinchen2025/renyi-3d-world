@@ -176,6 +176,8 @@ button:focus-visible{outline:2px solid var(--on);outline-offset:2px}
     <button class="btn sec" data-tp="14">地下室 器材室</button>
     <button class="btn sec" data-tp="15">集賢路 捷運工地</button>
     <button class="btn sec" data-tp="16">教學農園</button>
+    <button class="btn sec" data-tp="17">圓形穿堂 一樓</button>
+    <button class="btn sec" data-tp="18">圓形穿堂 二樓</button>
   </div>
   <button class="btn" id="helpClose">繼續逛</button>
 </div></div>
@@ -378,7 +380,7 @@ TOWER_V.forEach(v=>{const[t,te]=towerTex(v.frame,v.glass);const tm=litMat(t,te,3
 const S=new THREE.Group();scene.add(S);
 const colliders=[],walkRects=[],mapRects=[],LIGHTS=[];
 function addCol(x1,z1,x2,z2){colliders.push([Math.min(x1,x2),Math.min(z1,z2),Math.max(x1,x2),Math.max(z1,z2)]);}
-function groundY(x,z){for(const r of walkRects)if(x>=r[0]&&x<=r[2]&&z>=r[1]&&z<=r[3])return r[4];for(const o of walkOBB){const dx=x-o[0],dz=z-o[1];if(Math.abs(dx*o[2]+dz*o[3])<=o[4]&&Math.abs(dx*o[3]-dz*o[2])<=o[5])return o[6];}return 0;}
+function groundY(x,z,currentY){for(const r of walkRects)if(x>=r[0]&&x<=r[2]&&z>=r[1]&&z<=r[3]&&(currentY===undefined||r[4]<=currentY+0.3))return r[4];for(const o of walkOBB){const dx=x-o[0],dz=z-o[1];if(Math.abs(dx*o[2]+dz*o[3])<=o[4]&&Math.abs(dx*o[3]-dz*o[2])<=o[5])return o[6];}return 0;}
 function scaleBoxUV(geo,w,h,d,tu,tv){const uv=geo.attributes.uv;const dims=[[d,h],[d,h],[w,d],[w,d],[w,h],[w,h]];
  for(let f=0;f<6;f++){const[a,b]=dims[f];const sv=(f===2||f===3)?tu:tv;for(let i=0;i<4;i++){const k=f*4+i;uv.setXY(k,uv.getX(k)*a/tu,uv.getY(k)*b/sv);}}uv.needsUpdate=true;}
 function addBox(cx,y0,cz,w,h,d,mat,o={}){const geo=new THREE.BoxGeometry(w,h,d);if(o.tu)scaleBoxUV(geo,w,h,d,o.tu,o.tv||o.tu);
@@ -816,7 +818,11 @@ wing(-45,-29,-331,-257,0,TOPY,{});wing(-45,-29,-213,BZ2,0,TOPY,{});
 wing(25,41,-331,BZ2,3.6,TOPY-3.6,{px:'f',nx:'c',pz:'f',nz:'f'});wing(25,41,-331,-256,0.15,3.45,{px:'f',nx:'c',pz:'f',nz:'f'});wing(25,41,-209.3,BZ2,0.15,3.45,{px:'f',nx:'c',pz:'f'});wing(28.5,41,-216,-209.3,0.15,3.45,{px:'f',nx:'c'});
 wing(-29,25,BZ1,BZ2,7.0,TOPY-7.0,{});wing(-29,-15,BZ1,BZ2,3.6,3.4,{});wing(15,25,BZ1,BZ2,3.6,3.4,{});boxR(-15,15,BZ2-0.3,BZ2,3.6,3.4,SCH_TILE,{});boxR(-15,15,BZ1,BZ1+0.3,3.6,3.4,SCH_TILE,{});
 for(const[za,zb]of[[-269,-257]]){wing(-29,25,za,zb,3.6,TOPY-3.6,{});wing(-29,-5,za,zb,0.15,3.45,{});wing(5,25,za,zb,0.15,3.45,{});}
-wing(-29,25,-331,-307,3.6,TOPY-3.6,{});
+// 圓形穿堂的二樓進出空間：保留兩側量體，中間留出可走的挑高樓梯廳。
+wing(-29,-7.5,-331,-307,3.6,TOPY-3.6,{});
+wing(7.5,25,-331,-307,3.6,TOPY-3.6,{});
+for(const [xa,xb,za,zb] of [[-7.5,-3.7,-323.3,-307],[3.7,7.5,-323.3,-307]])wing(xa,xb,za,zb,3.6,TOPY-3.6,{});
+for(const [xa,xb,za,zb] of [[-7.5,-3.7,-331,-323.3],[3.7,7.5,-331,-323.3],[-3.7,3.7,-331,-307]])wing(xa,xb,za,zb,6.8,TOPY-6.8,{});
 wing(-29,-6.6,-331,-307,0.15,3.45,{});wing(-6.6,-4,-323.6,-307,0.15,3.45,{});wing(4,6.6,-323.6,-319,0.15,3.45,{});wing(4,5,-319,-307,0.15,3.45,{});wing(6.6,25,-331,-319,0.15,3.45,{});
 for(const[x1,x2,z1,z2]of[[-45,-29,-331,-257],[-45,-29,-213,BZ2],[25,41,-331,BZ2],[-29,25,BZ1,BZ2],[-29,25,-269,-257],[-29,25,-331,-307]]){boxR(x1,x2,z1,z1+0.2,TOPY,0.9,M('#d4cab0'),{cast:false});boxR(x1,x2,z2-0.2,z2,TOPY,0.9,M('#d4cab0'),{cast:false});}
 prismRoof(-45.6,-28.4,-331.6,-256.4,TOPY,3.2,false,MAT_SLATE);
@@ -836,7 +842,7 @@ boxR(-6,6,BZ1+2,BZ2-2,TOPY,3.2,M('#e3dbc3'),{});boxR(-36,-32,-300,-292,TOPY,3,M(
 
 // ---- 五華國小 外牆（3D 窗戶） ----
 facade(FZ(BZ2,1),-45,41,{g:[[-45,-15.5],[15.5,41]],skip:[[-6.6,6.6,1]]});
-facade(FZ(-331,-1),-45,41,{g:[[-45,-6.8],[6.8,41]],skip:[[-6.8,6.8,0]]});
+facade(FZ(-331,-1),-45,41,{g:[[-45,-8],[8,41]],skip:[[-8.2,8.2]]});
 facade(FX(-45,-1),-331,-257,{skip:[[-287,-279,0]],doors:[[-283,1.8]]});facade(FX(-45,-1),-213,BZ2,{});facade(FZ(-257,1),-45,-29,{});facade(FZ(-213,-1),-45,-29,{});
 facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],[-212.2,-198,4]]});
 // ---- 中庭走廊（突出 2.4 公尺，含柱、拱、欄杆） ----
@@ -848,8 +854,8 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
  corridor(FZ(-307,1),-29,25,{in1:D,in2:D,gSkip:[[-4,4],[5,25]]});
  corridor(FX(-29,1),-307+D,-269-D,{e1:false,e2:false});
  corridor(FX(25,-1),-307+D,-269-D,{e1:false,e2:false});}
-// ---- 六藝樓 圓形穿堂（照片）：一層樓高的開放圓廳，粉紅色小磁磚圓柱、磨石子地、上面一圈彩繪；半圓突出到操場那側，前面樓梯下到操場 ----
-{const __ROT0=S.children.length,__RW0=new Set(walkRects);const LF=1.2,CX=0,CZ0=-330,RR=6.5,HF=1.35,CEIL=3.6+LF,TAU=Math.PI*2;
+// ---- 六藝樓 圓形穿堂 v1：放大半圓入口、格狀天花、雙側可走的樓梯與二樓連通走道 ----
+{const __ROT0=S.children.length,__RW0=new Set(walkRects);const LF=1.2,CX=0,CZ0=-330,RR=8.4,HF=1.35,CEIL=8.2,TAU=Math.PI*2;
  window.ROTUNDA={x:CX,z:CZ0,r:RR};
  const PKT=tex(128,256,(g,W,H)=>{g.fillStyle='#e7b4ad';g.fillRect(0,0,W,H);g.fillStyle='#d49c95';for(let i=0;i<=W;i+=10)g.fillRect(i,0,1.2,H);for(let y=0;y<=H;y+=10)g.fillRect(0,y,W,1.2);},true);PKT.repeat.set(3,3);
  const PK=new THREE.MeshLambertMaterial({map:PKT,emissive:0x2a1a18});
@@ -866,12 +872,50 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
  // 粉紅磁磚圓柱：外圈（半圓）＋裡面幾根
  const col=(x,z)=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,CEIL-HF,20),PK);c.position.set(x,HF+(CEIL-HF)/2,z);c.castShadow=true;c.receiveShadow=true;S.add(c);addCol(x-0.42,z-0.42,x+0.42,z+0.42);};
  for(let i=0;i<=6;i++){const a=i/6*Math.PI;if(i===3)continue;col(CX+Math.cos(a)*(RR-0.5),DZ-Math.sin(a)*(RR-0.5));}
- for(const[x,z]of[[-4.4,-328.6],[4.4,-328.6],[-4.4,-325.2],[4.4,-325.2]])col(x,z);
+ for(const[x,z]of[[-7.1,-330.3],[7.1,-330.3]])col(x,z);
  // 中間地板的圓形拼花
  {const t=tex(256,256,(g,W,H)=>{g.fillStyle='#e9e2cf';g.fillRect(0,0,W,H);const c=W/2;for(const[r,cl]of[[124,'#d49c95'],[112,'#e9e2cf'],[100,'#2f7fd6'],[60,'#e9e2cf'],[48,'#e2a24c']]){g.fillStyle=cl;g.beginPath();g.arc(c,c,r,0,7);g.fill();}},false);
   const m=new THREE.Mesh(new THREE.CircleGeometry(2.6,40),new THREE.MeshLambertMaterial({map:t}));m.rotation.x=-Math.PI/2;m.position.set(CX,HF+0.008,-330.5);S.add(m);}
  // 天花燈
  for(const[x,z]of[[0,-333],[0,-328],[-3,-330.5],[3,-330.5]])boxR(x-0.5,x+0.5,z-0.5,z+0.5,CEIL-0.06,0.05,LAMP_LED,{cast:false});addLight(CX,CEIL-0.5,-330.5,'#fff4e0',8,'wall');
+ // 格狀天花板：參照影片截圖的淺色方格，使用細長共享材質方條，避免多張高成本貼圖。
+ {const GRID=M('#e6e4dd');for(let x=-6;x<=6.01;x+=1.5)boxR(x-0.035,x+0.035,-336.2,-325.6,CEIL-0.24,0.05,GRID,{cast:false});
+  for(let z=-336.2;z<=-325.5;z+=1.5)boxR(-6,6,z-0.035,z+0.035,CEIL-0.24,0.05,GRID,{cast:false});}
+ // 二樓高度與原校舍抬升後的二樓地坪齊平 (FL_Y[1]+LIFT=4.8m)。
+ const UP=FL_Y[1]+LF,STEPS=16,START=-337.0,END=-324.2,RISE=(UP-HF)/STEPS,STEP_RUN=(END-START)/STEPS;
+ const STP2=M('#d5d3cb'),EDGE2=M('#a9b6b2'),HAND=M('#758984');
+ for(const [x1,x2] of [[-6.0,-3.7],[3.7,6.0]]){
+  for(let i=0;i<STEPS;i++){
+   const za=START+i*STEP_RUN,zb=za+STEP_RUN,h=HF+(i+1)*RISE;
+   boxR(x1,x2,za,zb,HF,h-HF,STP2,{cast:false});
+   boxR(x1,x2,zb-0.05,zb,h-0.025,0.025,EDGE2,{cast:false});
+   walkRects.unshift([x1,za,x2,zb,h]);
+  }
+  // 兩側沿坡扶手，高度跟隨踏階，刻意不加地面碰撞，避免 iPad 角色卡在扶手。
+  for(const x of [x1+0.08,x2-0.08]){
+   limb(x,HF+0.96,START,x,UP+0.96,END,0.055,0.055,HAND);
+   for(let i=0;i<=STEPS;i+=4){const z=START+i*STEP_RUN,h=HF+i*RISE;limb(x,h+0.08,z,x,h+0.96,z,0.035,0.035,HAND);}
+  }
+ }
+ // 兩邊樓梯共用二樓平台，再沿中央走道連到六藝樓的二樓內側。
+ boxR(-6.1,6.1,END,-323.05,UP-0.18,0.18,STP2,{cast:false});
+ walkRects.unshift([-6.1,END,6.1,-323.05,UP]);
+ boxR(-3.25,3.25,-323.06,-307.5,UP-0.18,0.18,STP2,{cast:false});
+ walkRects.unshift([-3.25,-323.06,3.25,-307.5,UP]);
+ for(const x of [-3.28,3.28]){
+  limb(x,UP+0.99,-323.05,x,UP+0.99,-308,0.045,0.045,HAND);
+  for(let z=-323.05;z<-307.9;z+=2.4)limb(x,UP+0.05,z,x,UP+0.99,z,0.035,0.035,HAND);
+ }
+ // 面操場的二樓半圓形玻璃欄杆，保留一樓的挑高開放感。
+ const GL2=new THREE.MeshLambertMaterial({color:0xb8d5d1,transparent:true,opacity:0.31,depthWrite:false,side:THREE.DoubleSide});
+ for(let i=0;i<24;i++){
+  const a1=Math.PI*i/24,a2=Math.PI*(i+1)/24,rad=RR-0.19;
+  const x1=CX+Math.cos(a1)*rad,z1=DZ-Math.sin(a1)*rad,x2=CX+Math.cos(a2)*rad,z2=DZ-Math.sin(a2)*rad;
+  const w=Math.hypot(x2-x1,z2-z1),pane=new THREE.Mesh(new THREE.PlaneGeometry(w,0.85),GL2);
+  pane.position.set((x1+x2)/2,UP+0.58,(z1+z2)/2);pane.rotation.y=-Math.atan2(z2-z1,x2-x1);pane.castShadow=false;S.add(pane);
+  limb(x1,UP+1.05,z1,x2,UP+1.05,z2,0.042,0.042,HAND);
+  if(i%3===0)limb(x1,UP+0.08,z1,x1,UP+1.1,z1,0.043,0.043,HAND);
+ }
  // 往操場的樓梯（北邊）
  {const STP=M('#cfc7b1'),NOSE=M('#e2a24c'),zE=DZ-RR;for(let i=0;i<4;i++){const h=0.39+0.24*i,za=zE-0.6*(4-i),zb=za+0.6;boxR(-3.6,3.6,za,zb,0,h,STP,{});boxR(-3.6,3.6,za-0.03,za+0.05,h-0.03,0.04,NOSE,{cast:false});walkRects.unshift([-3.6,za,3.6,zb,h]);}
   boxR(-3.6,3.6,zE,zE+0.6,0,HF,STP,{});walkRects.unshift([-3.6,zE,3.6,zE+0.6,HF]);
@@ -2063,7 +2107,7 @@ document.getElementById('noteClose').addEventListener('click',()=>noteEl.style.d
 addInteract(-14.2,-205,2.4,'看希望之牆',()=>showNote('希望之牆',['全校小朋友一人摺一隻紙鶴','一隻一隻貼起來，拼成一隻大鯨魚','象徵大家一起游向夢想']));
 addInteract(-13.9,-202,1.4,'看小火車展示櫃',()=>toast('樂高小火車的車廂裡，放著小朋友的作品和獎狀'));
 addInteract(0,-207,2.4,'看日出馬賽克牆',()=>showNote('穿堂的舞台',['日出的馬賽克牆是全校小朋友一片一片貼的','上面的電子看板會打出歡迎的字','耶誕點燈、合唱、直笛表演都在這裡']));
-addInteract(0,-330,2.2,'看圓形穿堂',()=>showNote('圓形穿堂',['六藝樓一樓的開放圓廳，粉紅磁磚圓柱','從操場那邊走樓梯上來','往裡面直走穿過走道就是北中庭','牆上有五華榮譽榜，上面是圓頂']));
+addInteract(0,-330,2.2,'看圓形穿堂',()=>showNote('圓形穿堂',['依校園影片照片擴大的半圓形穿堂','左右兩側都有可以走到二樓的樓梯','一樓有磨石子地面、方格天花和開放活動空間','二樓設有環弧形欄杆及連接走道']));
 addInteract(14.2,-205,2.4,'看馬賽克牆',()=>toast('馬賽克牆上兩個穿制服的小朋友，舉著「五華國小 歡迎你」'));
 for(const cr of classrooms)addInteract(cr.x1+1.4,CZ-0.9,1.7,`看 ${cr.r.name} 上課`,()=>toast(`${cr.r.name}正在上${cr.r.subj}課，黑板寫著「${cr.r.board[1]}」`));
 boxR(-28.2,-27.4,CZ-0.55,CZ,0.15,1.05,M('#c8ccd0'),{col:1});boxR(-28.2,-27.4,CZ-0.5,CZ-0.1,1.2,0.35,M('#8fa4b4'),{});
@@ -2727,7 +2771,7 @@ scene.add(player.g);
 const PL={pos:new THREE.Vector3(10.5,0.15,120),vy:0,rot:Math.PI,onGround:true,veh:null,run:false};
 let camYaw=0,camPitch=0.28,camDist=6.5,camDistCar=10,lookTimer=0;
 const camPos=new THREE.Vector3();
-const TP=[[10.5,150,Math.PI],[-30,65,-Math.PI/2],[35,-160,Math.PI],[0,-172,Math.PI],[-3,-211,-Math.PI/2],[-18,-336,Math.PI],[LJ(-(JX_HW+2.2),-330)[0],-330,-Math.PI/2],[-72,-300,Math.PI],[26.8,-229,Math.PI/2],[14,-305.2,Math.PI],[0,-216.6,Math.PI],[-39.5,-371,-Math.PI/2],[40,-364,-Math.PI/2],[71,-249,Math.PI],[23,-322,Math.PI],[LJ(-17.4,-326)[0],-326,Math.atan2(JXN.x,JXN.z)],[-25.6,-235,-Math.PI/2]];
+const TP=[[10.5,150,Math.PI],[-30,65,-Math.PI/2],[35,-160,Math.PI],[0,-172,Math.PI],[-3,-211,-Math.PI/2],[-18,-336,Math.PI],[LJ(-(JX_HW+2.2),-330)[0],-330,-Math.PI/2],[-72,-300,Math.PI],[26.8,-229,Math.PI/2],[14,-305.2,Math.PI],[0,-216.6,Math.PI],[-39.5,-371,-Math.PI/2],[40,-364,-Math.PI/2],[71,-249,Math.PI],[23,-322,Math.PI],[LJ(-17.4,-326)[0],-326,Math.atan2(JXN.x,JXN.z)],[-25.6,-235,-Math.PI/2],[0,-335,Math.PI],[0,-320,Math.PI]];
 function teleport(i){if(PL.veh)exitVehicle();const t=TP[i];PL.pos.set(t[0],groundY(t[0],t[1]),t[1]);PL.rot=t[2];camYaw=t[2]+Math.PI;PL.vy=0;}
 function resolveCircle(p,r){let hit=false;for(const c of colliders){if(p.x+r<c[0]||p.x-r>c[2]||p.z+r<c[1]||p.z-r>c[3])continue;const cx=clamp(p.x,c[0],c[2]),cz=clamp(p.z,c[1],c[3]);const dx=p.x-cx,dz=p.z-cz;const d2=dx*dx+dz*dz;if(d2>=r*r)continue;
  if(d2<1e-9){const l=p.x-c[0],rr=c[2]-p.x,t=p.z-c[1],b=c[3]-p.z;const m=Math.min(l,rr,t,b);if(m===l)p.x=c[0]-r;else if(m===rr)p.x=c[2]+r;else if(m===t)p.z=c[1]-r;else p.z=c[3]+r;}
@@ -2828,7 +2872,7 @@ function locationName(x,z){
  if(x<-40&&x>-52&&z<-399)return['五華國小 校長宿舍','西北角'];
  if(x>-48&&x<-33&&z<-333&&z>-346)return['五華國小 遊樂場','鞦韆 ・ 蹺蹺板'];
  if(x>-15&&x<15&&z<BZ2&&z>BZ1)return['五華國小 穿堂','希望之牆 ・ 往中庭'];
- if((z<-331&&Math.hypot(x,z+331)<6.6)||(Math.abs(x)<6.6&&z>-331&&z<-323.6)||(Math.abs(x)<4&&z>-323.6&&z<-307))return['五華國小 圓形穿堂','六藝樓 ・ 往操場'];
+ if((z<-331&&Math.hypot(x,z+331)<8.5)||(Math.abs(x)<7.5&&z>-331&&z<-323.3)||(Math.abs(x)<3.7&&z>-323.3&&z<-307))return['五華國小 圓形穿堂',PL.pos.y>3.5?'六藝樓 ・ 二樓走廊':'六藝樓 ・ 往操場'];
  if(x>7&&x<36&&z<-339&&z>-389)return['五華國小 綜合球場','籃球隊在練習'];
  if(x>55&&z<-186&&z>-412){if(z>-207)return['五華國小 家長接送區','集賢路側'];if(z>-251)return['五華國小 教職員停車場','集賢路側'];if(z>-304&&x<85)return['五華國小 風雨操場','籃球全場'];if(x<LJ(-20.6,z)[0])return['五華國小 集賢門','警衛室在門內'];}
  if(Math.abs(x-LJ(0,z)[0])<4.5&&z>MRT_Z1&&z<MRT_Z2)return['集賢路 捷運工地','環狀線北環段 高架工程'];
@@ -2880,7 +2924,7 @@ function updatePlayer(dt){if(BATTLE)return;if(AIM){updateAim(dt);return;}if(DESI
   if(mag>0.08){const fx=-Math.sin(camYaw),fz=-Math.cos(camYaw),rx=Math.cos(camYaw),rz=-Math.sin(camYaw);let dx=fx*iy+rx*ix,dz=fz*iy+rz*ix;const l=Math.hypot(dx,dz);dx/=l;dz/=l;sp=(running?7.5*(1+0.03*PROF.sk.speed):3.8)*mag;PL.pos.x+=dx*sp*dt;PL.pos.z+=dz*sp*dt;PL.rot=angLerp(PL.rot,Math.atan2(dx,dz),Math.min(1,dt*12));}
   resolveCircle(PL.pos,0.35);
   for(const v of vehicles){if(v.ai&&!v.active)continue;const dx=PL.pos.x-v.pos.x,dz=PL.pos.z-v.pos.z;const fx=Math.sin(v.h),fz=Math.cos(v.h);const a=dx*fx+dz*fz,b=-dx*fz+dz*fx;const ha=v.hl+0.3,hb=v.hw+0.3;if(Math.abs(a)<ha&&Math.abs(b)<hb){const pa=ha-Math.abs(a),pb=hb-Math.abs(b);if(pb<pa){const s=Math.sign(b)||1;PL.pos.x+=-fz*s*pb;PL.pos.z+=fx*s*pb;}else{const s=Math.sign(a)||1;PL.pos.x+=fx*s*pa;PL.pos.z+=fz*s*pa;}}}
-  const gy=groundY(PL.pos.x,PL.pos.z);if((keys.Space||keys.TouchJump)&&PL.onGround){PL.vy=7.5+0.3*PROF.sk.jump;PL.onGround=false;}
+  const gy=groundY(PL.pos.x,PL.pos.z,PL.pos.y);if((keys.Space||keys.TouchJump)&&PL.onGround){PL.vy=7.5+0.3*PROF.sk.jump;PL.onGround=false;}
   PL.vy-=24*dt;PL.pos.y+=PL.vy*dt;if(PL.pos.y<=gy){PL.pos.y=gy;PL.vy=0;PL.onGround=true;}
   player.g.position.copy(PL.pos);player.g.rotation.y=PL.rot;animWalk(player,sp,dt);if(sp<0.1){player.legs[0].rotation.x*=0.8;player.legs[1].rotation.x*=0.8;player.arms[0].rotation.x*=0.8;}
   if(!PL.onGround){player.legs[0].rotation.x=-0.5;player.legs[1].rotation.x=0.3;}
@@ -2953,11 +2997,11 @@ let FREECAM=null;
 function updateCamera(dt){if(FREECAM){camera.position.set(...FREECAM[0]);camera.lookAt(...FREECAM[1]);sky.position.copy(camera.position);sun.position.copy(camera.position).add(SUN_OFF);sun.target.position.set(...FREECAM[1]);sun.shadow.camera.left=-250;sun.shadow.camera.right=250;sun.shadow.camera.top=250;sun.shadow.camera.bottom=-250;sun.shadow.camera.updateProjectionMatrix();rainMat.uniforms.uC.value.copy(camera.position);return;}if(DESIGN){designCam(dt);return;}if(POV){camPos.lerp(POV.from,Math.min(1,dt*8));camera.position.copy(camPos);camera.lookAt(POV.look);player.g.visible=false;sky.position.copy(camera.position);sun.position.copy(PL.pos).add(SUN_OFF);sun.target.position.copy(PL.pos);rainMat.uniforms.uC.value.copy(camera.position);return;}const tgt=tmpV;const v=PL.veh;
  if(v){tgt.set(v.pos.x,v.pos.y+(v.type==='car'?1.6:1.8),v.pos.z);if(lookTimer<=0&&Math.abs(v.speed)>1)camYaw=angLerp(camYaw,v.h+Math.PI,dt*2.2);}else tgt.set(PL.pos.x,PL.pos.y+1.55,PL.pos.z);
  lookTimer-=dt;
- const indoor=!v&&((PL.pos.y<-0.6)||(PL.pos.x>-29&&PL.pos.x<25&&PL.pos.z>BZ1-0.5&&PL.pos.z<BZ2+0.5)||(PL.pos.x>5&&PL.pos.x<25&&PL.pos.z>-319&&PL.pos.z<-307)||(Math.abs(PL.pos.x)<6.6&&PL.pos.z>-331&&PL.pos.z<-323.6)||(PL.pos.x>25&&PL.pos.x<41&&PL.pos.z>-256&&PL.pos.z<-213));const inGym=!v&&insideGym();
+ const indoor=!v&&((PL.pos.y<-0.6)||(PL.pos.x>-29&&PL.pos.x<25&&PL.pos.z>BZ1-0.5&&PL.pos.z<BZ2+0.5)||(PL.pos.x>5&&PL.pos.x<25&&PL.pos.z>-319&&PL.pos.z<-307)||((PL.pos.z<-331&&Math.hypot(PL.pos.x,PL.pos.z+331)<8.5)||(Math.abs(PL.pos.x)<7.5&&PL.pos.z>-331&&PL.pos.z<-323.3))||(PL.pos.x>25&&PL.pos.x<41&&PL.pos.z>-256&&PL.pos.z<-213));const inGym=!v&&insideGym();
  let dist=v?camDistCar:(indoor?Math.min(camDist,4.2):camDist);const pitch=(indoor||(!v&&insideGym()))?Math.min(camPitch,0.32):camPitch;
  const dir=tmpV2.set(Math.sin(camYaw)*Math.cos(pitch),Math.sin(pitch),Math.cos(camYaw)*Math.cos(pitch));
  raycaster.set(tgt,dir);raycaster.far=dist+0.3;const hits=raycaster.intersectObjects(blockers,false);if(hits.length)dist=Math.max(0.6,hits[0].distance-0.35);
- if(inGym)dist=Math.min(dist,7);const want=tgt.clone().addScaledVector(dir,dist);if(indoor)want.y=Math.min(want.y,3.3);if(!v&&PL.pos.y<-1&&PL.pos.z<-318.5)want.y=Math.min(want.y,-0.4);if(inGym)want.y=Math.min(want.y,6.2);
+ if(inGym)dist=Math.min(dist,7);const want=tgt.clone().addScaledVector(dir,dist);if(indoor)want.y=Math.min(want.y,Math.max(3.3,PL.pos.y+2.0));if(!v&&PL.pos.y<-1&&PL.pos.z<-318.5)want.y=Math.min(want.y,-0.4);if(inGym)want.y=Math.min(want.y,6.2);
  camPos.lerp(want,Math.min(1,dt*14));if(camPos.distanceTo(want)>dist*1.5)camPos.copy(want);
  camera.position.copy(camPos);camera.lookAt(tgt);player.g.visible=!(PL.veh&&PL.veh.type==='car')&&camPos.distanceTo(tgt)>1.25;
  sky.position.copy(camera.position);sun.position.copy(tgt).add(SUN_OFF);sun.target.position.copy(tgt);rainMat.uniforms.uC.value.copy(camera.position);}
@@ -2991,7 +3035,7 @@ const SKIPZ=[[-7,-338,7,-322],[-47.2,-292.2,-44.5,-278.8]];
 const inFoot=(x,z,t=0)=>FOOT.some(f=>x>=f[0]-t&&x<=f[2]+t&&z>=f[1]-t&&z<=f[3]+t);
 const inRect=(r,x,z,t=0)=>x>=r[0]-t&&x<=r[2]+t&&z>=r[1]-t&&z<=r[3]+t;
 function liftStatic(x,z){return inFoot(x,z)?LIFT:0;}
-function liftDyn(x,z){for(const s of STAIRS)if(inRect(s,x,z))return clamp(groundY(x,z)-0.15,0,LIFT);if(inFoot(x,z,0.2))return LIFT;if(z<-331&&Math.hypot(x,z+331)<6.6)return LIFT;for(const s of STAIRS)if(inRect(s,x,z,0.6))return clamp(groundY(x,z)-0.15,0,LIFT);return 0;}
+function liftDyn(x,z){for(const s of STAIRS)if(inRect(s,x,z))return clamp(groundY(x,z)-0.15,0,LIFT);if(inFoot(x,z,0.2))return LIFT;if(z<-331&&Math.hypot(x,z+331)<(window.ROTUNDA?.r||8.4))return LIFT;for(const s of STAIRS)if(inRect(s,x,z,0.6))return clamp(groundY(x,z)-0.15,0,LIFT);return 0;}
 function boxInFoot(b,t){const w=b.max.x-b.min.x,d=b.max.z-b.min.z;const nx=Math.min(60,Math.ceil(w/2)+1),nz=Math.min(60,Math.ceil(d/2)+1);
  for(let i=0;i<=nx;i++)for(let j=0;j<=nz;j++){const x=b.min.x+w*i/nx,z=b.min.z+d*j/nz;if(!inFoot(x,z,t))return false;}return true;}
 const RAILG=M('#5f9e6e');function edgeRail(x1,z1,x2,z2){const L=Math.hypot(x2-x1,z2-z1);if(L<0.6)return;const y=0.15+LIFT;if(x1===x2){boxR(x1-0.04,x1+0.04,z1,z2,y+0.88,0.07,RAILG,{cast:false});boxR(x1-0.03,x1+0.03,z1,z2,y+0.45,0.04,RAILG,{cast:false});for(let z=z1;z<=z2+0.01;z+=1.2)boxR(x1-0.04,x1+0.04,z-0.04,z+0.04,y,0.92,RAILG,{cast:false});}
