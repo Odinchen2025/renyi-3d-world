@@ -952,6 +952,13 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
    }},false);
   vplane(-5.77,UP+0.65,-323.77,4.55,1.7,new THREE.MeshLambertMaterial({map:p}),0);
  }
+ // 二樓走廊前方補上教室與總務處立面，往左側可找到總務處
+ {const WY=4.8,WALL=M('#f1ecdf',{emissive:0x333333}),FRAME=M('#8b6a3f',{emissive:0x202020}),GL=glassMat('#b9d9ef',{transparent:true,opacity:0.68});
+  const room=(x1,x2,label,color)=>{boxR(x1,x2,-307.05,-306.85,WY,2.2,WALL,{col:1,block:1});boxR(x1+0.2,x1+1.2,-307.08,-306.82,WY,1.9,FRAME,{col:1});boxR(x1+0.28,x1+1.12,-307.1,-306.8,WY+0.6,1.0,M('#6a4b2c'),{cast:false});
+   const wx1=x1+1.5,wx2=x2-0.22;boxR(wx1,wx2,-307.04,-306.9,WY+0.8,1.1,GL,{cast:false});for(let x=wx1;x<=wx2+0.01;x+=(wx2-wx1)/3)boxR(x-0.03,x+0.03,-307.04,-306.9,WY+0.75,1.2,FRAME,{cast:false});
+   vplane((x1+x2)/2,WY+2.0,-306.83,Math.min(4.2,x2-x1-0.3),0.34,signMat(label,color,'#ffffff',false,0.26),0);addCol(x1,-307.1,x2,-306.8);};
+  room(-17.5,-9.2,'總務處','#7a5a3c');room(-8.7,-1.2,'二年一班','#1f4f8a');room(1.2,8.7,'二年二班','#2f8f5b');
+  for(const[x,z]of[[-14.8,-312.5],[-11.4,-312.5],[-5.8,-312.5],[-3.4,-312.5],[3.4,-312.5],[5.8,-312.5]]){boxR(x-0.38,x+0.38,z-0.22,z+0.22,WY,0.65,M('#d9c7a6',{emissive:0x232323}),{cast:false});boxR(x-0.04,x+0.04,z-0.2,z+0.1,WY+0.62,0.45,M('#8d6e63',{emissive:0x232323}),{cast:false});}}
  // 往操場的樓梯（北邊）
  {const STP=M('#cfc7b1'),NOSE=M('#e2a24c'),zE=DZ-RR;for(let i=0;i<4;i++){const h=0.39+0.24*i,za=zE-0.6*(4-i),zb=za+0.6;boxR(-3.6,3.6,za,zb,0,h,STP,{});boxR(-3.6,3.6,za-0.03,za+0.05,h-0.03,0.04,NOSE,{cast:false});walkRects.unshift([-3.6,za,3.6,zb,h]);}
   boxR(-3.6,3.6,zE,zE+0.6,0,HF,STP,{});walkRects.unshift([-3.6,zE,3.6,zE+0.6,HF]);
@@ -959,9 +966,7 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
  // 半圓邊緣（樓梯以外）有矮欄杆
  for(let a=0.08;a<Math.PI-0.05;a+=0.12){const x=CX+Math.cos(a)*(RR-0.08),z=DZ-Math.sin(a)*(RR-0.08);if(Math.abs(x)<3.7)continue;boxR(x-0.05,x+0.05,z-0.05,z+0.05,HF,0.95,M('#5f9e6e'),{cast:false});addCol(x-0.2,z-0.2,x+0.2,z+0.2);}
  window.__ROT=[__ROT0,S.children.length];for(const r of walkRects)if(!__RW0.has(r))r.noLift=1;
- // 裡面（建築內）的牆面：白磁磚＋彩繪
- {const mur=tex(512,128,(g,W,H)=>{g.fillStyle='#bcd6e8';g.fillRect(0,0,W,H);for(let i=0;i<60;i++){g.fillStyle=pick(['#e04a3a','#2f74d0','#f2c12e','#2fa36b','#7d4ea3','#f39c34']);g.fillRect(R(0,W),R(0,H),R(10,40),R(6,20));}},false);
-  vplane(0,2.55,-323.58,9,1.6,new THREE.MeshLambertMaterial({map:mur,emissive:0x202020}),0);}
+ // 依照照片驗收移除彩色矩形橫幅，保留原有白磁磚背景。
  mapRects.push([-RR,DZ-RR,RR,DZ,'#ddd2b4']);}
 // ---- 學務處（六藝樓一樓東段，面向北中庭）：十個有隔板的辦公桌；進門右手邊是往地下室器材室的樓梯 ----
 const STAIR={x1:21.4,x2:24.8,zTop:-309.2,zBot:-319,yBot:-3.3};
@@ -1339,12 +1344,12 @@ function smallSlide(x,z){boxR(x-0.6,x+0.6,z-0.6,z+0.6,0.15,0.85,M('#ff7aa2'),{co
  vplane(17.2,1.1,-221.6,1.8,0.42,signMat('花園','#2f8f5b','#ffffff',false,0.3),0);cyl(17.2,0.15,-221.62,0.04,0.04,1.0,M('#7a5a3c'),5);
 }
 
-// ===================== 北中庭（三民樓與六藝樓之間，沒有溜滑梯）：紅磚地、黃色弧形花台（樹、紫葉、黃綠葉）、藍色地墊區、白磁磚圓柱、同學在打掃 =====================
+// ===================== 北中庭（三民樓與六藝樓之間）：整體改為灰色地坪、保留弧形花台與白磁磚圓柱，中央增設小型司令台 =====================
 {const X1=-26.6,X2=22.6,Z1=-304.6,Z2=-271.4;
- {const bt=tex(128,128,(g,W,H)=>{g.fillStyle='#b9655a';g.fillRect(0,0,W,H);for(let y=0;y<H;y+=32)for(let x=0;x<W;x+=32){g.fillStyle=pick(['#c06d60','#b35e52','#c8786a','#ad5a4f']);g.fillRect(x+1,y+1,30,30);}speckle(g,W,H,300,['#000','#fff'],1,.03,.06);});bt.repeat.set((X2-X1)/2.4,(Z2-Z1)/2.4);
-  flat((X1+X2)/2,(Z1+Z2)/2,X2-X1,Z2-Z1,PAINT('#fff',{map:bt}),0.166);mapRects.push([X1,Z1,X2,Z2,'#b9655a']);}
- // 藍色地墊＋綠松色邊
- flat(-2,-288,22.6,18.6,PAINT('#2fa3a0'),0.176);flat(-2,-288,21.8,17.8,PAINT('#5d9fd6'),0.18);mapRects.push([-13,-297,9,-279,'#5d9fd6']);
+ {const gt=tex(128,128,(g,W,H)=>{g.fillStyle='#9d9d98';g.fillRect(0,0,W,H);for(let y=0;y<H;y+=32)for(let x=0;x<W;x+=32){g.fillStyle=pick(['#a8a8a3','#94948f','#b2b2ad','#8c8c88']);g.fillRect(x+1,y+1,30,30);}speckle(g,W,H,300,['#fff','#000'],1,.03,.06);});gt.repeat.set((X2-X1)/2.5,(Z2-Z1)/2.5);
+  flat((X1+X2)/2,(Z1+Z2)/2,X2-X1,Z2-Z1,PAINT('#fff',{map:gt}),0.166);mapRects.push([X1,Z1,X2,Z2,'#9d9d98']);}
+ // 原本藍色地墊區也改成灰色，保留略微不同色階
+ flat(-2,-288,22.6,18.6,PAINT('#a7a7a2'),0.176);flat(-2,-288,21.8,17.8,PAINT('#b5b5b0'),0.18);mapRects.push([-13,-297,9,-279,'#b5b5b0']);
  // 黃色弧形花台
  const YC=M('#e8b23a'),SO=M('#5a3e2a');
  const arcPlanter=(cx,cz,r1,r2,a0,a1,tree)=>{const s=new THREE.Shape();s.absarc(0,0,r2,a0,a1,false);s.absarc(0,0,r1,a1,a0,true);const curb=new THREE.Shape();curb.absarc(0,0,r2,a0,a1,false);curb.absarc(0,0,r2-0.28,a1,a0,true);
@@ -1354,8 +1359,7 @@ function smallSlide(x,z){boxR(x-0.6,x+0.6,z-0.6,z+0.6,0.15,0.85,M('#ff7aa2'),{co
     if(kind<0.3){const p=new THREE.Mesh(G_BLOB,M(pick(['#6a2848','#7a2a4a','#5a2040'])));p.scale.set(0.45,0.55,0.45);p.position.set(x,0.75,z);p.castShadow=true;S.add(p);}
     else if(kind<0.55){for(let k=0;k<3;k++){const l=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.02,0.36),M('#c7d96a'));l.position.set(x+R(-0.1,0.1),0.55+k*0.05,z+R(-0.1,0.1));l.rotation.set(R(-0.6,0.6),R(0,6),0);S.add(l);}}
     else{const p=new THREE.Mesh(G_BLOB,M(pick(['#4c8a3a','#5b9a3f','#3f7a30'])));p.scale.set(0.55,0.5,0.55);p.position.set(x,0.68,z);p.castShadow=true;S.add(p);}}
-   for(let a=a0;a<=a1;a+=0.25){const x=cx+Math.cos(a)*(r1+r2)/2,z=cz-Math.sin(a)*(r1+r2)/2;addCol(x-0.6,z-0.6,x+0.6,z+0.6);}
-   if(tree){const am=(a0+a1)/2,rm=(r1+r2)/2;TREE_SPOTS.push([cx+Math.cos(am)*rm,cz-Math.sin(am)*rm,'broad',R(8,10)]);}};
+   for(let a=a0;a<=a1;a+=0.25){const x=cx+Math.cos(a)*(r1+r2)/2,z=cz-Math.sin(a)*(r1+r2)/2;addCol(x-0.6,z-0.6,x+0.6,z+0.6);}if(tree){const am=(a0+a1)/2,rm=(r1+r2)/2;TREE_SPOTS.push([cx+Math.cos(am)*rm,cz-Math.sin(am)*rm,'broad',R(8,10)]);}};
  arcPlanter(-26.6,-271.4,4.2,7.2,0,Math.PI/2,true);arcPlanter(22.6,-271.4,4.2,7.2,Math.PI/2,Math.PI,true);
  arcPlanter(-26.6,-304.6,4.2,7.2,-Math.PI/2,0,true);arcPlanter(22.6,-304.6,4.2,7.2,Math.PI,1.5*Math.PI,true);
  // 白色小磁磚圓柱（樓梯間）
@@ -1363,32 +1367,53 @@ function smallSlide(x,z){boxR(x-0.6,x+0.6,z-0.6,z+0.6,0.15,0.85,M('#ff7aa2'),{co
   const c=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.7,TOPY-0.15,32),T);c.position.set(15.5,0.15+(TOPY-0.15)/2,-275.2);c.castShadow=true;c.receiveShadow=true;S.add(c);addCol(13.9,-276.8,17.1,-273.6);
   const cap=new THREE.Mesh(new THREE.CylinderGeometry(1.85,1.85,0.3,32),M('#d9d5c9'));cap.position.set(15.5,TOPY+0.15,-275.2);S.add(cap);}
  for(const[x,z,ry]of[[-17,-288,Math.PI/2],[13,-288,-Math.PI/2]])bench(x,z,ry);
- for(const[x,z]of[[-20,-284],[16,-292]])TREE_SPOTS.push([x,z,'broad',R(9,11)]);}
+ for(const[x,z]of[[-20,-284],[16,-292]])TREE_SPOTS.push([x,z,'broad',R(9,11)]);
+}
 
-// ===== 北中庭頒獎台（藍色地墊南邊，面向北） =====
-{const cx=-2,cz=-281.2,W=M('#f6f4ee'),RD=M('#d62828'),BL=M('#1f4fa8');
- for(const[dx,h,n,c]of[[0,0.95,'1','#e8b62e'],[1.5,0.65,'2','#b9bec4'],[-1.5,0.45,'3','#c98a4a']]){boxR(cx+dx-0.75,cx+dx+0.75,cz-0.6,cz+0.6,0.18,h,W,{col:1});boxR(cx+dx-0.76,cx+dx+0.76,cz-0.61,cz+0.61,0.18+h-0.08,0.08,dx===0?RD:BL,{cast:false});
-  const t=tex(128,128,(g,W2,H)=>{g.fillStyle='#f6f4ee';g.fillRect(0,0,W2,H);g.fillStyle=c;g.beginPath();g.arc(64,64,50,0,7);g.fill();g.fillStyle='#fff';g.font='900 72px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(n,64,68);},false);
-  vplane(cx+dx,0.18+h/2,cz-0.61,Math.min(1.0,h*1.1),Math.min(1.0,h*1.1)*0.95,new THREE.MeshLambertMaterial({map:t}),Math.PI);}
- vplane(cx,1.75,cz+0.62,4.2,0.45,signMat('頒 獎 台','#d62828','#ffffff',false,0.3),Math.PI);boxR(cx-2.1,cx+2.1,cz+0.6,cz+0.66,0.18,1.95,M('#d62828'),{cast:false});}
-// ===== 重陽橋（縮小版的重陽大橋模型，放在三民樓中廊）：紅色 H 形橋塔、白色斜張鋼索、橋面可以走過去；旁邊書櫃 =====
+// ===== 北中庭小型司令台（取代頒獎台） =====
+{const cx=0,cz=-274.4,BASE=M('#efe7d2'),EDGE=M('#8f3a28'),STEP=M('#d8d0bc'),RAIL=M('#70777c');
+ boxR(cx-2.7,cx+2.7,cz-1.2,cz+1.2,0.18,0.62,BASE,{col:1});
+ boxR(cx-2.72,cx+2.72,cz+1.13,cz+1.21,0.72,0.08,EDGE,{cast:false});
+ for(let i=0;i<3;i++){const za=cz-1.95+i*0.28,zb=za+0.28,h=0.18+0.14*(i+1);boxR(cx-1.15,cx+1.15,za,zb,0.18,h-0.18,STEP,{cast:false});walkRects.unshift([cx-1.15,za,cx+1.15,zb,h]);}
+ walkRects.unshift([cx-2.6,cz-1.2,cx+2.6,cz+1.2,0.8]);
+ for(const sx of[-1,1]){boxR(cx+sx*2.3-0.05,cx+sx*2.3+0.05,cz-1.05,cz+1.1,0.8,0.75,RAIL,{cast:false});addCol(cx+sx*2.3-0.1,cz-1.1,cx+sx*2.3+0.1,cz+1.1);}
+ boxR(cx-0.9,cx+0.9,cz+0.5,cz+0.92,0.8,0.08,EDGE,{cast:false});cyl(cx,0.8,cz+0.72,0.03,0.03,0.78,M('#555'),6);cyl(cx,1.55,cz+0.72,0.055,0.055,0.08,M('#222'),6);
+ vplane(cx,1.75,cz+1.25,4.8,0.45,signMat('小型司令台','#8f3a28','#ffffff',false,0.3),Math.PI);}
+
+// ===== 重陽橋（縮小版的重陽大橋模型，放在三民樓中廊）：紅色 H 形橋塔、白色斜張鋼索、橋面可以走過去；兩旁新增販賣機，右側補上下樓梯與地下乒乓球室 =====
 {const RD=M('#d9472a'),RD2=M('#b8391f'),WC=M('#f2f2ee'),DK=M('#b9b6ae'),ZS=[-266.6,-259.4],XP=1.9,HT=3.3,ZC=(ZS[0]+ZS[1])/2;
  for(const z of ZS){for(const x of[-XP,XP]){boxR(x-0.22,x+0.22,z-0.22,z+0.22,0.15,HT,RD,{col:1,block:1});boxR(x-0.3,x+0.3,z-0.3,z+0.3,0.15,0.35,RD2,{cast:false});}
   boxR(-XP,XP,z-0.18,z+0.18,2.55,0.32,RD,{});boxR(-XP,XP,z-0.16,z+0.16,0.75,0.14,RD2,{cast:false});
   const nm=tex(256,48,(g,W,H)=>{g.fillStyle='#d9472a';g.fillRect(0,0,W,H);g.fillStyle='#f1d27a';g.font=`900 32px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText('重 陽 橋',W/2,H/2+1);},false);
   for(const[dz,ry]of[[-0.19,Math.PI],[0.19,0]])vplane(0,2.71,z+dz,2.6,0.28,new THREE.MeshLambertMaterial({map:nm}),ry);}
- // 橋面（中間微微拱起）＋兩側白色欄杆
  const Z1=-268.4,Z2=-257.6,N=16;for(let i=0;i<N;i++){const za=Z1+(Z2-Z1)*i/N,zb=Z1+(Z2-Z1)*(i+1)/N,y=0.15+0.12*Math.sin((i+0.5)/N*Math.PI);boxR(-1.5,1.5,za,zb,0.15,y-0.15+0.12,DK,{cast:false});}
  walkRects.unshift([-1.5,Z1,1.5,Z2,0.35]);
  for(const x of[-1.55,1.55]){boxR(x-0.03,x+0.03,Z1,Z2,0.95,0.05,WC,{cast:false});for(let z=Z1;z<=Z2+0.01;z+=0.9)boxR(x-0.03,x+0.03,z-0.03,z+0.03,0.27,0.7,WC,{cast:false});}
- // 斜張鋼索：從橋塔頂往兩邊橋面拉
- for(const z of ZS)for(const x of[-XP,XP])for(let k=1;k<=4;k++)for(const s of[-1,1]){const zz=z+s*k*0.62;if(zz<Z1+0.2||zz>Z2-0.2)continue;limb(x,HT-0.1-k*0.12,z,x*0.82,0.38,zz,0.012,0.012,WC);}
+ for(const z of ZS)for(const x of[-XP,XP])for(let k=1;k<=4;k++)for(const sgn of[-1,1]){const zz=z+sgn*k*0.62;if(zz<Z1+0.2||zz>Z2-0.2)continue;limb(x,HT-0.1-k*0.12,z,x*0.82,0.38,zz,0.012,0.012,WC);}
  boxR(-1.5,1.5,Z1-0.6,Z1,0.15,0.1,DK,{cast:false});boxR(-1.5,1.5,Z2,Z2+0.6,0.15,0.1,DK,{cast:false});
  // 書櫃（中廊兩側牆，整面都是）
  {const BW=M('#c49a5a'),z1=-268.8,z2=-257.4;
   const bk=tex(512,256,(g,W,H)=>{g.fillStyle='#6a4a2a';g.fillRect(0,0,W,H);for(let r=0;r<5;r++){const y=8+r*50;g.fillStyle='#c49a5a';g.fillRect(0,y+42,W,8);let x=4;while(x<W-6){const w=R(6,14);g.fillStyle=pick(['#e04a3a','#2f74d0','#f2c12e','#2fa36b','#f6f1e4','#7d4ea3','#f39c34','#1f4fa8']);const t=R(4,12);g.fillRect(x,y+t,w,42-t);x+=w+1;}}g.strokeStyle='#c49a5a';g.lineWidth=8;for(let i=0;i<=8;i++){g.beginPath();g.moveTo(i*64,0);g.lineTo(i*64,H);g.stroke();}},false);
   for(const[x,ry,o]of[[-4.95,Math.PI/2,0.46],[4.95,-Math.PI/2,-0.46]]){boxR(Math.min(x,x+o),Math.max(x,x+o),z1,z2,0.15,2.3,BW,{col:1});vplane(x+o+(o>0?0.005:-0.005),1.3,(z1+z2)/2,z2-z1-0.1,2.2,new THREE.MeshLambertMaterial({map:bk,emissive:0x202020}),ry);
-   vplane(x+o+(o>0?0.01:-0.01),2.55,(z1+z2)/2,2.6,0.32,signMat('重陽書坊','#f6f1e4','#7a3a22',false,0.25),ry);}}}
+   vplane(x+o+(o>0?0.01:-0.01),2.55,(z1+z2)/2,2.6,0.32,signMat('重陽書坊','#f6f1e4','#7a3a22',false,0.25),ry);}}
+ // 重陽橋兩側增設販賣機（不要貼太近橋身）
+ const vmFace=(title,accent)=>{const t=tex(256,512,(g,W,H)=>{g.fillStyle='#f7f7f4';g.fillRect(0,0,W,H);g.fillStyle=accent;g.fillRect(0,0,W,48);g.fillStyle='#fff';g.font=`900 30px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText(title,W/2,24);for(let r=0;r<5;r++)for(let c=0;c<3;c++){const x=28+c*66,y=70+r*68;g.fillStyle=pick(['#2f74d0','#f2c12e','#2fa36b','#e04a3a','#7d4ea3']);g.fillRect(x,y,48,48);g.fillStyle='#ffffff';g.fillRect(x+8,y+8,32,22);}g.fillStyle='#444';g.fillRect(W-64,84,22,180);g.fillStyle='#9bd7ff';g.fillRect(26,H-88,W-52,58);g.fillStyle='#333';g.fillRect(W/2-8,H-116,16,22);},false);return new THREE.MeshLambertMaterial({map:t,emissive:0x242424});};
+ const addVM=(x,z,ry,title,accent)=>{boxR(x-0.65,x+0.65,z-0.55,z+0.55,0.15,2.15,M('#f8f8f5'),{col:1});vplane(x+Math.sin(ry)*0.57,1.25,z+Math.cos(ry)*0.57,1.12,1.9,vmFace(title,accent),ry);boxR(x-0.55,x+0.55,z-0.45,z+0.45,2.05,0.08,M(accent),{cast:false});addCol(x-0.7,z-0.6,x+0.7,z+0.6);};
+ addVM(-8.9,-262.9,Math.PI/2,'飲料','#2f74d0');addVM(9.2,-263.1,-Math.PI/2,'飲料','#d9482f');
+ // 右手邊樓梯：往上與往下（下去是地下乒乓球室）
+ const stairZ=(x1,x2,zTop,zBot,y0,y1,n,mat1,mat2)=>{for(let i=0;i<n;i++){const za=zTop-(zTop-zBot)*(i+1)/n,zb=zTop-(zTop-zBot)*i/n,h=y0+(y1-y0)*(i+1)/n;boxR(x1,x2,za,zb,Math.min(y0,h),Math.abs(h-y0)+0.02,mat1,{cast:false});boxR(x1,x2,za-0.04,za+0.03,h-0.02,0.03,mat2,{cast:false});walkRects.unshift([x1,za,x2,zb,h]);}};
+ stairZ(11.3,13.9,-258.1,-266.3,0.15,3.6,14,M('#d1c8b2'),M('#8fa2ad'));
+ stairZ(15.0,17.6,-258.1,-266.3,0.15,-3.1,14,M('#c4bca8'),M('#6b8498'));
+ boxR(11.0,14.2,-266.45,-265.8,3.48,0.18,M('#d1c8b2'),{cast:false});walkRects.unshift([11.0,-266.45,14.2,-265.8,3.6]);
+ for(const x of[11.15,14.05,14.85,17.75]){boxR(x-0.05,x+0.05,-266.5,-258.05,0.15,1.1,M('#dfe4e8'),{cast:false});if(x<14.5)boxR(x-0.05,x+0.05,-266.5,-265.8,3.6,0.95,M('#dfe4e8'),{cast:false});}
+ // 地下乒乓球室
+ const PX1=8.4,PX2=24.2,PZ1=-270.8,PZ2=-257.3,PY=-3.1;
+ flat((PX1+PX2)/2,(PZ1+PZ2)/2,PX2-PX1,PZ2-PZ1,PAINT('#7d8f79'),PY+0.01);walkRects.unshift([PX1,PZ1,PX2,PZ2,PY]);
+ for(const[a,b,c,d]of[[PX1-0.2,PX1,PZ1,PZ2],[PX2,PX2+0.2,PZ1,PZ2],[PX1,PX2,PZ1-0.2,PZ1],[PX1,PX2,PZ2,PZ2+0.2]])boxR(a,b,c,d,PY,3.35,M('#ece5d7',{emissive:0x333333}),{col:1,block:1});
+ for(const[x,z]of[[12.3,-266.8],[18.5,-266.8]]){boxR(x-1.5,x+1.5,z-0.85,z+0.85,PY+0.82,0.07,M('#2f74d0'),{cast:false});boxR(x-1.48,x+1.48,z-0.03,z+0.03,PY+0.9,0.03,M('#ffffff'),{cast:false});for(const sx of[-1.42,1.42])for(const sz of[-0.78,0.78])boxR(x+sx-0.04,x+sx+0.04,z+sz-0.04,z+sz+0.04,PY,0.86,M('#999'),{cast:false});addCol(x-1.6,z-0.95,x+1.6,z+0.95);}
+ vplane(20.6,PY+1.95,PZ1+0.22,3.0,0.62,signMat('地下乒乓球室','#2f74d0','#ffffff',false,0.35),0);
+ for(const[x,z]of[[10.5,-259.8],[22.0,-259.8],[10.5,-268.3],[22.0,-268.3]])boxR(x-0.55,x+0.55,z-0.2,z+0.2,PY+2.85,0.05,LAMP_LED,{cast:false});
+}
 
 // ===================== 西側：教學農園、幼兒園遊戲區 =====================
 {const WOOD=TM(T_WOOD,{color:'#b88a5a'}),SOIL=M('#5a3e2a'),BAMBOO=M('#c9b26b');
@@ -2143,7 +2168,7 @@ document.getElementById('noteClose').addEventListener('click',()=>noteEl.style.d
 addInteract(-14.2,-205,2.4,'看希望之牆',()=>showNote('希望之牆',['全校小朋友一人摺一隻紙鶴','一隻一隻貼起來，拼成一隻大鯨魚','象徵大家一起游向夢想']));
 addInteract(-13.9,-202,1.4,'看小火車展示櫃',()=>toast('樂高小火車的車廂裡，放著小朋友的作品和獎狀'));
 addInteract(0,-207,2.4,'看日出馬賽克牆',()=>showNote('穿堂的舞台',['日出的馬賽克牆是全校小朋友一片一片貼的','上面的電子看板會打出歡迎的字','耶誕點燈、合唱、直笛表演都在這裡']));
-addInteract(0,-330,2.2,'看圓形穿堂',()=>showNote('圓形穿堂',['依校園影片照片擴大的半圓形穿堂','左右兩側都有可以走到二樓的樓梯','一樓有磨石子地面、方格天花和開放活動空間','二樓設有環弧形欄杆及連接走道']));
+addInteract(0,-330,2.2,'看圓形穿堂',()=>showNote('圓形穿堂',['依校園影片照片擴大的半圓形穿堂','中央 Y 字形樓梯可以走到二樓','一樓有磨石子地面、方格天花和開放活動空間','二樓新增教室及左側總務處立面']));
 addInteract(14.2,-205,2.4,'看馬賽克牆',()=>toast('馬賽克牆上兩個穿制服的小朋友，舉著「五華國小 歡迎你」'));
 for(const cr of classrooms)addInteract(cr.x1+1.4,CZ-0.9,1.7,`看 ${cr.r.name} 上課`,()=>toast(`${cr.r.name}正在上${cr.r.subj}課，黑板寫著「${cr.r.board[1]}」`));
 boxR(-28.2,-27.4,CZ-0.55,CZ,0.15,1.05,M('#c8ccd0'),{col:1});boxR(-28.2,-27.4,CZ-0.5,CZ-0.1,1.2,0.35,M('#8fa4b4'),{});
@@ -2293,8 +2318,11 @@ function updatePlayerBall(dt){if(CARRY&&!PSHOT&&!AIM&&CARRY.mesh.parent!==player
 // 遊樂設施
 for(const s of SWINGS)addInteract(s.x,s.z+0.5,1.2,'盪鞦韆',()=>{SW_T=0;sitAt({type:'swing',sw:s,x:s.x,y:0.3,z:s.z,rot:0,sx:s.x,sz:s.z+1.4});say('（抓緊鐵鍊，腳一蹬…）',2);});
 addInteract(-6.8,-251.4,1.8,'溜大溜滑梯',()=>{sitAt({type:'slide',big:true,t:0,x:-6.6,y:0.15,z:-250.1,rot:Math.PI,sx:-1.0,sz:-235.4});});
-addInteract(-2,-282.6,1.8,'站上頒獎台',()=>{toast('站上第一名的頒獎台！大家拍手～');gainExp&&gainExp(1,'頒獎台');});
+addInteract(0,-274.4,2.2,'站上小型司令台',()=>choose('小型司令台',[{label:'廣播集合',fn:()=>say('（麥克風）請北中庭附近的同學集合，準備活動。',4)},{label:'提醒秩序',fn:()=>say('（麥克風）請同學排好隊，注意安全。',4)},{label:'向大家問好',fn:()=>toast('你站上小型司令台，向大家揮揮手。',3.5)}]));
 addInteract(0,-252,2.4,'看重陽橋',()=>showNote('重陽橋',['仿照 1991 年通車的重陽大橋','紅色的 H 形橋塔、白色斜張鋼索','人稱「紅柱凌霄，虹橋跨天」','可以從橋面走過中廊']));
+addInteract(18.3,-264.2,1.8,'打桌球',()=>toast('地下乒乓球室裡有兩張桌球桌，下課可以來對打。',4));
+addInteract(9.2,-263.1,1.5,'買飲料',()=>toast('投了 20 元，販賣機掉出一瓶冰涼飲料。',3.5));
+addInteract(-8.9,-262.9,1.5,'買飲料',()=>toast('販賣機裡有茶飲、礦泉水和運動飲料。',3.5));
 addInteract(-8.5,-231.4,1.3,'溜小溜滑梯',()=>{sitAt({type:'slide',big:false,t:0,x:-8.5,y:0.15,z:-231.5,rot:Math.PI,sx:-8.5,sz:-236.6});});
 addInteract(-34.6,-340.6,1.5,'溜紅色溜滑梯',()=>{sitAt({type:'slide',kind:'wood',t:0,x:-34.6,y:0.15,z:-340.6,rot:-Math.PI/2,sx:-44.4,sz:-340.6});});
 addInteract(-41.6,-335.6,1.6,'坐在圓形木頭椅上',()=>toast('坐在大樹旁的圓椅上，看田徑隊在操場跑步'));
@@ -2899,6 +2927,7 @@ function exitVehicle(){const v=PL.veh;if(!v)return;PL.veh=null;v.parked=true;v.s
 // =====================================================================
 const locEl=document.getElementById('loc'),promptEl=document.getElementById('prompt'),speedEl=document.getElementById('speed');
 function locationName(x,z){
+ if(PL.pos.y<-1&&x>8&&x<24.5&&z>-271&&z<-257)return['五華國小 地下室','乒乓球室'];
  if(PL.pos.y<-1&&x>5&&x<25&&z<-307)return['五華國小 地下室','體育器材室 可以借器材'];
  if(x>5&&x<25&&z>-319&&z<-307)return['五華國小 學務處','老師們正在辦公'];
  if(x>-26.6&&x<22.6&&z<-215.4&&z>-254.6)return['五華國小 南中庭',z>-221.5?'前面的空地':x>16.4?'花園':x<-4.1?'遊樂區 大型溜滑梯':'五華小森林'];
@@ -2908,7 +2937,7 @@ function locationName(x,z){
  if(x<-40&&x>-52&&z<-399)return['五華國小 校長宿舍','西北角'];
  if(x>-48&&x<-33&&z<-333&&z>-346)return['五華國小 遊樂場','鞦韆 ・ 蹺蹺板'];
  if(x>-15&&x<15&&z<BZ2&&z>BZ1)return['五華國小 穿堂','希望之牆 ・ 往中庭'];
- if((z<-331&&Math.hypot(x,z+331)<8.5)||(Math.abs(x)<7.5&&z>-331&&z<-323.3)||(Math.abs(x)<3.7&&z>-323.3&&z<-307))return['五華國小 圓形穿堂',PL.pos.y>3.5?'六藝樓 ・ 二樓走廊':'六藝樓 ・ 往操場'];
+ if((z<-331&&Math.hypot(x,z+331)<8.5)||(Math.abs(x)<7.5&&z>-331&&z<-323.3)||(Math.abs(x)<3.7&&z>-323.3&&z<-307))return['五華國小 圓形穿堂',PL.pos.y>3.5?'六藝樓 ・ 二樓教室':'六藝樓 ・ 往操場'];
  if(x>7&&x<36&&z<-339&&z>-389)return['五華國小 綜合球場','籃球隊在練習'];
  if(x>55&&z<-186&&z>-412){if(z>-207)return['五華國小 家長接送區','集賢路側'];if(z>-251)return['五華國小 教職員停車場','集賢路側'];if(z>-304&&x<85)return['五華國小 風雨操場','籃球全場'];if(x<LJ(-20.6,z)[0])return['五華國小 集賢門','警衛室在門內'];}
  if(Math.abs(x-LJ(0,z)[0])<4.5&&z>MRT_Z1&&z<MRT_Z2)return['集賢路 捷運工地','環狀線北環段 高架工程'];
