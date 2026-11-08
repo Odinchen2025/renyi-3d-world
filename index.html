@@ -863,7 +863,7 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
  const half=(r,y,h,mat)=>{const m=new THREE.Mesh(new THREE.ExtrudeGeometry(halfShape(r),{depth:h,bevelEnabled:false,curveSegments:40}),mat);m.rotation.x=-Math.PI/2;m.position.set(CX,y,-331);m.castShadow=true;m.receiveShadow=true;S.add(m);return m;};
  // 突出到外面的半圓（中心在牆線上，半徑 RR）：地板、屋頂、上緣彩繪帶
  const DZ=-331;const T2=T_TERRAZZO.clone();T2.needsUpdate=true;T2.repeat.set(0.3,0.3);
- half(RR,0,HF,[TM(T2,{emissive:0x262626}),M('#c9c1ae')]);half(RR+0.25,CEIL,0.35,[M('#f2efe6'),M('#e9e4d6')]);
+ half(RR,0,HF,[TM(T2,{color:'#747774',emissive:0x202020}),M('#9a9b99')]);half(RR+0.25,CEIL,0.35,[M('#f2efe6'),M('#e9e4d6')]);
  {const mt=tex(1024,96,(g,W,H)=>{g.fillStyle='#f4efe2';g.fillRect(0,0,W,H);for(let i=0;i<40;i++){g.fillStyle=pick(['#e04a3a','#2f74d0','#f2c12e','#2fa36b','#ff7aa2','#7d4ea3']);g.beginPath();g.arc(R(0,W),R(10,H-10),R(8,22),0,7);g.fill();}
    g.fillStyle='#2f74d0';g.font=`900 40px ${FONT}`;g.textAlign='center';g.textBaseline='middle';g.fillText('五 華 國 小  圓 形 穿 堂',W/2,H/2);},false);
   const band=new THREE.Mesh(new THREE.CylinderGeometry(RR+0.28,RR+0.28,1.0,48,1,true,Math.PI/2,Math.PI),new THREE.MeshLambertMaterial({map:mt,side:THREE.DoubleSide}));band.position.set(CX,CEIL+0.85,DZ);band.rotation.y=Math.PI;S.add(band);}
@@ -883,7 +883,9 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
   for(let z=-336.2;z<=-325.5;z+=1.5)boxR(-6,6,z-0.035,z+0.035,CEIL-0.24,0.05,GRID,{cast:false});}
  // 二樓高度與原校舍抬升後的二樓地坪齊平 (FL_Y[1]+LIFT=4.8m)。
  const UP=FL_Y[1]+LF,STEPS=16,START=-337.0,END=-324.2,RISE=(UP-HF)/STEPS,STEP_RUN=(END-START)/STEPS;
- const STP2=M('#d5d3cb'),EDGE2=M('#a9b6b2'),HAND=M('#758984');
+ // 根據六藝樓穿堂實景：灰白階梯、深灰實心斜牆、金屬扶手
+ const STP2=M('#c5c7c5'),EDGE2=M('#767b7a'),HAND=M('#697276');
+ const STAIR_SIDE=M('#55595b');
  for(const [x1,x2] of [[-6.0,-3.7],[3.7,6.0]]){
   for(let i=0;i<STEPS;i++){
    const za=START+i*STEP_RUN,zb=za+STEP_RUN,h=HF+(i+1)*RISE;
@@ -897,7 +899,33 @@ facade(FX(41,1),-331,BZ2,{skip:[[-212.2,-198,1],[-212.2,-198,2],[-212.2,-198,3],
    for(let i=0;i<=STEPS;i+=4){const z=START+i*STEP_RUN,h=HF+i*RISE;limb(x,h+0.08,z,x,h+0.96,z,0.035,0.035,HAND);}
   }
  }
- // 兩邊樓梯共用二樓平台，再沿中央走道連到六藝樓的二樓內側。
+ // 左右樓梯內側加上深灰色實心斜牆（只作裝飾，不額外阻擋行走）。
+ for(const xx of[-3.68,3.68]){
+  const g=new THREE.BufferGeometry(),v=new Float32Array([xx,HF,START,xx,UP,END,xx,HF,END]);
+  g.setAttribute('position',new THREE.BufferAttribute(v,3));g.setIndex([0,1,2]);g.computeVertexNormals();
+  const w=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:0x55595b,side:THREE.DoubleSide}));
+  w.castShadow=false;S.add(w);
+ }
+ // 米白方磚背景與五華學生作品展示牆；採程序化圖案，非真實學生肖像。
+ {const tile=tex(256,256,(g,W,H)=>{g.fillStyle='#e8e4db';g.fillRect(0,0,W,H);
+   g.strokeStyle='#b8b6b0';g.lineWidth=2;
+   for(let x=0;x<=W;x+=16){g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();}
+   for(let y=0;y<=H;y+=16){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
+  });tile.repeat.set(3,2);
+  const TILED=TM(tile,{emissive:0x191919});
+  // 展示牆位於左側樓梯上端之後，避免封住中央穿堂入口。
+  boxR(-8.05,-3.42,-323.92,-323.81,HF,UP+1.65-HF,TILED,{cast:false});
+  const p=tex(768,288,(g,W,H)=>{g.fillStyle='#303c38';g.fillRect(0,0,W,H);
+   const cols=['#df9b5c','#83b4c0','#d6b1b2','#aed39d','#d0b57b','#a8a6d2','#f0c46d','#98c6ba'];
+   for(let j=0;j<3;j++)for(let i=0;i<13;i++){const x=10+i*58,y=8+j*92;
+    g.fillStyle=cols[(i+j*3)%cols.length];g.fillRect(x,y,52,85);
+    g.fillStyle='#f1d0ad';g.beginPath();g.arc(x+26,y+27,15,0,Math.PI*2);g.fill();
+    g.fillStyle=cols[(i+j+4)%cols.length];g.fillRect(x+10,y+48,32,29);
+    g.fillStyle='#e9e7e1';g.fillRect(x+6,y+78,40,3);
+   }},false);
+  vplane(-5.77,UP+0.65,-323.77,4.55,1.7,new THREE.MeshLambertMaterial({map:p}),0);
+ }
+ // 兩邊樓梯共用二樓平台，再沿中央走道連到六藝樓的二樓內側.
  boxR(-6.1,6.1,END,-323.05,UP-0.18,0.18,STP2,{cast:false});
  walkRects.unshift([-6.1,END,6.1,-323.05,UP]);
  boxR(-3.25,3.25,-323.06,-307.5,UP-0.18,0.18,STP2,{cast:false});
