@@ -1995,13 +1995,18 @@ function newLeash(){const lg=new THREE.BufferGeometry();lg.setAttribute('positio
 function leashTo(d,cc,hold){const c=cc.g;const th=c.rotation.y,fx=Math.sin(th),fz=Math.cos(th),lx=-Math.cos(th),lz=Math.sin(th);const sc=c.scale.y;
  const hx=c.position.x+(lx*0.33+fx*0.14)*sc,hy=c.position.y+0.56*sc,hz=c.position.z+(lz*0.33+fz*0.14)*sc;const s=d.g.scale.x;
  const cyY=d.collarY!==undefined?d.collarY:0.45,czO=d.collarZ!==undefined?d.collarZ:0.2;const cx=d.x+Math.sin(d.h)*czO*s,cy=d.g.position.y+(cyY+d.body.position.y)*s,cz=d.z+Math.cos(d.h)*czO*s;
- const L=Math.hypot(cx-hx,cy-hy,cz-hz),sag=Math.max(0,1.5-L)*0.35;const a=d.leash.geometry.attributes.position;
+ const L=Math.hypot(cx-hx,cy-hy,cz-hz),sag=Math.max(0,1.35-L)*0.28;const a=d.leash.geometry.attributes.position;
  for(let i=0;i<10;i++){const t=i/9;a.setXYZ(i,hx+(cx-hx)*t,hy+(cy-hy)*t-Math.sin(Math.PI*t)*sag,hz+(cz-hz)*t);}a.needsUpdate=true;if(hold)cc.arms[0].rotation.x=-0.45;}
 function updateDog(p,sp,dt,time){const d=p.dog,c=p.c.g;const th=c.rotation.y,fx=Math.sin(th),fz=Math.cos(th),lx=-Math.cos(th),lz=Math.sin(th);
- const tx=c.position.x+lx*0.62+fx*(sp>0?0.6:0.35),tz=c.position.z+lz*0.62+fz*(sp>0?0.6:0.35);const dx=tx-d.x,dz=tz-d.z,dd=Math.hypot(dx,dz);let ds=0;
- if(dd>0.03){ds=Math.min(dd*3.5,Math.max(sp*1.3,0.6),3.5);const st=Math.min(dd,ds*dt);d.x+=dx/dd*st;d.z+=dz/dd*st;}
- if(ds>0.25)d.h=angLerp(d.h,Math.atan2(dx,dz),Math.min(1,dt*8));else d.h=angLerp(d.h,th,Math.min(1,dt*2));
+ const tx=c.position.x+lx*0.54+fx*(sp>0?0.46:0.28),tz=c.position.z+lz*0.54+fz*(sp>0?0.46:0.28);const dx=tx-d.x,dz=tz-d.z,dd=Math.hypot(dx,dz);let ds=0;
+ if(dd>0.03){ds=Math.min(dd*4.6,Math.max(sp*1.55,0.8),4.8);const st=Math.min(dd,ds*dt);d.x+=dx/dd*st;d.z+=dz/dd*st;}
+ if(ds>0.25)d.h=angLerp(d.h,Math.atan2(dx,dz),Math.min(1,dt*9));else d.h=angLerp(d.h,th,Math.min(1,dt*2.5));
+ const s=d.g.scale.x,cyY=d.collarY!==undefined?d.collarY:0.45,czO=d.collarZ!==undefined?d.collarZ:0.2;
+ const hx=c.position.x+(lx*0.33+fx*0.14)*c.scale.y,hz=c.position.z+(lz*0.33+fz*0.14)*c.scale.y;
+ const cx=d.x+Math.sin(d.h)*czO*s,cz=d.z+Math.cos(d.h)*czO*s;const leash2D=Math.hypot(cx-hx,cz-hz),maxLeash=(sp>0?1.15:1.02);
+ if(leash2D>maxLeash){const pull=(leash2D-maxLeash)/leash2D;d.x-=(cx-hx)*pull;d.z-=(cz-hz)*pull;}
  d.g.position.set(d.x,groundY(d.x,d.z),d.z);d.g.rotation.y=d.h;d.g.visible=true;d.leash.visible=true;animDog(d,ds>0.25?ds:0,dt,time);leashTo(d,p.c,true);}
+
 // 站著聊天的主人＋牽著的狗（公園、巷口）
 const IDLE_DOGS=[];
 function idlePair(x,z,ry,kind,opt){const c=idle(x,z,ry,opt);const d=makeDog(kind);const lx=-Math.cos(ry),lz=Math.sin(ry);d.x=x+lx*0.7+Math.sin(ry)*0.3;d.z=z+lz*0.7+Math.cos(ry)*0.3;d.h=ry+R(-0.6,0.6);d.g.position.set(d.x,groundY(d.x,d.z),d.z);d.g.rotation.y=d.h;d.sit=1;scene.add(d.g);d.leash=newLeash();d.owner=c;IDLE_DOGS.push(d);return d;}
